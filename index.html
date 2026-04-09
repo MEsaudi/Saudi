@@ -3,811 +3,1638 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GCC & 중동 일일 뉴스 대시보드</title>
+<title>Middle East & Saudi Arabia Think Tanks Dashboard</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
   :root {
-    --bg: #0f1117; --card: #1a1d27; --card-hover: #222633;
-    --accent: #00d4aa; --accent2: #5b8def;
-    --text: #e8eaed; --text-dim: #8b8fa3; --border: #2a2d3a;
-    --saudi: #006c35; --western: #1a5276; --korean: #c0392b; --other: #7d3c98;
-    --ko-bg: rgba(0,212,170,0.06); --ko-border: rgba(0,212,170,0.15);
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232735;
+    --border: #2e3345;
+    --text: #e4e6ef;
+    --text-dim: #8b8fa3;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #ffd93d;
+    --saudi: #006c35;
+    --uae: #c8102e;
+    --qatar: #8a1538;
+    --bahrain: #ce1126;
+    --israel: #0038b8;
+    --multi: #6c63ff;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
-  .header { background:linear-gradient(135deg,#1a1d27,#0f1117); border-bottom:1px solid var(--border); padding:20px 32px; position:sticky; top:0; z-index:100; backdrop-filter:blur(12px); }
-  .header-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-  .header h1 { font-size:22px; font-weight:700; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .date-badge { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; font-size:12px; color:var(--text-dim); display:flex; align-items:center; gap:8px; }
-  .live-dot { width:8px; height:8px; background:#00ff88; border-radius:50%; animation:pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+  body {
+    font-family: 'Noto Sans KR', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-  .stats-bar { display:flex; gap:10px; flex-wrap:wrap; }
-  .stat-chip { background:var(--card); border:1px solid var(--border); padding:5px 12px; border-radius:14px; font-size:11px; color:var(--text-dim); display:flex; align-items:center; gap:5px; }
-  .stat-chip .count { font-weight:700; color:var(--accent); }
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #232735 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+  }
 
-  .controls { padding:12px 32px; display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--border); background:var(--bg); position:sticky; top:72px; z-index:99; align-items:center; }
-  .filter-btn { padding:6px 14px; border-radius:18px; border:1px solid var(--border); background:transparent; color:var(--text-dim); cursor:pointer; font-size:12px; font-weight:500; transition:all .2s; white-space:nowrap; }
-  .filter-btn:hover { border-color:var(--accent); color:var(--accent); }
-  .filter-btn.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:600; }
-  .filter-btn.saudi.active { background:var(--saudi); color:#fff; border-color:var(--saudi); }
-  .filter-btn.western.active { background:var(--western); color:#fff; border-color:var(--western); }
-  .filter-btn.korean.active { background:var(--korean); color:#fff; border-color:var(--korean); }
-  .filter-btn.other.active { background:var(--other); color:#fff; border-color:var(--other); }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6c63ff, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
 
-  .sep { width:1px; height:24px; background:var(--border); margin:0 4px; }
+  .header p {
+    color: var(--text-dim);
+    font-size: 13px;
+  }
 
-  .lang-btn { padding:5px 12px; border-radius:14px; border:1px solid var(--border); background:transparent; color:var(--text-dim); cursor:pointer; font-size:11px; transition:all .2s; }
-  .lang-btn.active { background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
 
-  .search-bar { padding:10px 32px; background:var(--bg); }
-  .search-input { width:100%; padding:10px 18px; border-radius:10px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:13px; outline:none; }
-  .search-input:focus { border-color:var(--accent); }
-  .search-input::placeholder { color:var(--text-dim); }
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
 
-  .main { padding:16px 32px; }
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-  .section-title { font-size:16px; font-weight:700; margin:24px 0 12px; padding-left:12px; border-left:3px solid var(--accent); display:flex; align-items:center; gap:8px; }
-  .badge { font-size:10px; padding:2px 8px; border-radius:8px; font-weight:600; color:#fff; }
-  .badge-saudi{background:var(--saudi);} .badge-western{background:var(--western);} .badge-korean{background:var(--korean);} .badge-other{background:var(--other);}
+  .search-box {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    width: 240px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--text-dim); }
 
-  .news-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:14px; margin-bottom:10px; }
+  .main { padding: 24px 40px; max-width: 1400px; margin: 0 auto; }
 
-  .news-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; transition:all .2s; position:relative; overflow:hidden; }
-  .news-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; }
-  .news-card.saudi::before{background:var(--saudi);} .news-card.western::before{background:var(--western);} .news-card.korean::before{background:var(--korean);} .news-card.other::before{background:var(--other);}
-  .news-card:hover { background:var(--card-hover); transform:translateY(-1px); box-shadow:0 6px 24px rgba(0,0,0,.3); }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
 
-  .card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
-  .source-tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; }
-  .source-tag.saudi{background:rgba(0,108,53,.2);color:#00d68f;} .source-tag.western{background:rgba(26,82,118,.2);color:#5dade2;} .source-tag.korean{background:rgba(192,57,43,.2);color:#e74c3c;} .source-tag.other{background:rgba(125,60,152,.2);color:#bb8fce;}
-  .card-date { font-size:10px; color:var(--text-dim); white-space:nowrap; margin-left:6px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
 
-  .title-en { font-size:14px; font-weight:600; line-height:1.45; margin-bottom:3px; color:var(--text); }
-  .title-ko { font-size:13px; font-weight:500; line-height:1.45; margin-bottom:8px; color:var(--accent); padding-left:9px; border-left:2px solid var(--accent); opacity:.9; }
-  .summary-en { font-size:12px; color:var(--text-dim); line-height:1.55; margin-bottom:4px; }
-  .summary-ko { font-size:12px; color:#8ecae6; line-height:1.55; margin-bottom:12px; padding:6px 10px; background:var(--ko-bg); border:1px solid var(--ko-border); border-radius:6px; }
-  .title-only { font-size:14px; font-weight:600; line-height:1.45; margin-bottom:8px; color:var(--text); }
-  .summary-only { font-size:12px; color:var(--text-dim); line-height:1.55; margin-bottom:12px; }
+  .stat-card .num {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6c63ff, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
-  .card-footer { display:flex; justify-content:space-between; align-items:center; }
-  .topic-tags { display:flex; gap:4px; flex-wrap:wrap; }
-  .topic-tag { font-size:9px; padding:2px 6px; border-radius:5px; background:rgba(255,255,255,.05); color:var(--text-dim); border:1px solid var(--border); }
-  .read-link { font-size:11px; color:var(--accent); text-decoration:none; font-weight:600; white-space:nowrap; }
-  .read-link:hover { opacity:.7; }
+  .stat-card .label { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
 
-  .summary-panel { background:linear-gradient(135deg,#1a2332,#1a1d27); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:20px; }
-  .summary-panel h2 { font-size:15px; margin-bottom:12px; color:var(--accent); }
-  .summary-points { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
-  .summary-point { display:flex; gap:8px; align-items:flex-start; padding:10px; background:rgba(255,255,255,.03); border-radius:8px; border:1px solid var(--border); }
-  .summary-icon { font-size:18px; flex-shrink:0; }
-  .summary-text { font-size:12px; line-height:1.5; color:var(--text-dim); }
-  .summary-text strong { color:var(--text); }
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-  .scroll-top { position:fixed; bottom:24px; right:24px; width:40px; height:40px; border-radius:50%; background:var(--accent); color:#000; border:none; cursor:pointer; font-size:18px; display:none; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,212,170,.3); z-index:200; }
-  .scroll-top.show { display:flex; }
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
 
-  .article-count-note { font-size:11px; color:var(--text-dim); margin-bottom:16px; padding:8px 14px; background:var(--card); border:1px solid var(--border); border-radius:8px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 16px;
+    margin-bottom: 36px;
+  }
 
-  @media(max-width:768px) { .header{padding:12px 14px;} .controls{padding:10px 14px;} .search-bar{padding:8px 14px;} .main{padding:12px 14px;} .news-grid{grid-template-columns:1fr;} .summary-points{grid-template-columns:1fr;} .header h1{font-size:17px;} }
-  .no-results { text-align:center; padding:50px 20px; color:var(--text-dim); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
 
-  /* Priority badges */
-  .prio-badge { font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; letter-spacing:.3px; margin-left:6px; vertical-align:middle; }
-  .prio-headline { background:#e74c3c; color:#fff; }
-  .prio-breaking { background:#f39c12; color:#000; }
-  .prio-analysis { background:#3498db; color:#fff; }
-  .prio-policy { background:#8e44ad; color:#fff; }
-  .prio-economy { background:#27ae60; color:#fff; }
-  .prio-normal { display:none; }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.1);
+  }
 
-  .news-card.prio-top { border-color:rgba(231,76,60,.4); }
-  .news-card.prio-top::after { content:''; position:absolute; top:0; right:0; width:0; height:0; border-top:28px solid rgba(231,76,60,.6); border-left:28px solid transparent; }
+  .card-header {
+    padding: 20px 20px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .card-header h3 { font-size: 16px; font-weight: 600; line-height: 1.4; }
+  .card-header .eng { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  .country-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+
+  .country-sa { background: rgba(0,108,53,0.2); color: #4ade80; border: 1px solid rgba(0,108,53,0.3); }
+  .country-ae { background: rgba(200,16,46,0.15); color: #fb7185; border: 1px solid rgba(200,16,46,0.25); }
+  .country-qa { background: rgba(138,21,56,0.2); color: #f0abfc; border: 1px solid rgba(138,21,56,0.3); }
+  .country-bh { background: rgba(206,17,38,0.15); color: #fca5a5; border: 1px solid rgba(206,17,38,0.25); }
+  .country-il { background: rgba(0,56,184,0.2); color: #93c5fd; border: 1px solid rgba(0,56,184,0.3); }
+  .country-multi { background: rgba(108,99,255,0.15); color: #a5b4fc; border: 1px solid rgba(108,99,255,0.25); }
+
+  .card-body { padding: 0 20px 16px; }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .tag {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .tag.focus { background: rgba(108,99,255,0.12); color: #a5b4fc; border-color: rgba(108,99,255,0.25); }
+
+  .orientation {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .orientation strong { color: var(--accent2); font-weight: 500; }
+
+  .card-footer {
+    border-top: 1px solid var(--border);
+    padding: 14px 20px;
+    background: rgba(0,0,0,0.15);
+  }
+
+  .card-footer .footer-title {
+    font-size: 11px;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .report-item {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 4px;
+    padding-left: 12px;
+    position: relative;
+  }
+
+  .report-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .report-item a {
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .report-item a:hover { color: var(--accent); }
+
+  .report-date { color: var(--text-dim); font-size: 11px; }
+
+  .detail-panel {
+    position: fixed;
+    right: -520px;
+    top: 0;
+    width: 520px;
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 200;
+    transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+    box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+  }
+
+  .detail-panel.open { right: 0; }
+
+  .detail-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .detail-close:hover { background: var(--accent3); border-color: var(--accent3); }
+
+  .detail-content { padding: 28px; }
+  .detail-content h2 { font-size: 20px; margin-bottom: 4px; padding-right: 40px; }
+  .detail-content .eng-name { color: var(--text-dim); font-size: 13px; margin-bottom: 16px; }
+
+  .detail-section { margin-bottom: 20px; }
+  .detail-section h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .detail-section p, .detail-section li {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .detail-section ul { list-style: none; padding: 0; }
+  .detail-section li { padding-left: 14px; position: relative; margin-bottom: 6px; }
+  .detail-section li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .detail-link {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 18px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  .detail-link:hover { opacity: 0.85; }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .overlay.open { opacity: 1; pointer-events: auto; }
+
+  .map-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .country-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .country-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .country-pill:hover { border-color: var(--accent); }
+  .country-pill .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .country-pill .name { font-size: 13px; font-weight: 500; }
+  .country-pill .count { font-size: 12px; color: var(--text-dim); }
+
+  /* === Latest Reports Timeline === */
+  .timeline-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .timeline-section::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 300px; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--surface));
+    pointer-events: none;
+    z-index: 2;
+    display: none;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .timeline-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .timeline-header h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent3);
+    border-radius: 2px;
+  }
+
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background: var(--accent3);
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 8px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,107,107,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(255,107,107,0); }
+  }
+
+  .timeline-filters {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tl-filter {
+    padding: 4px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tl-filter:hover { border-color: var(--accent3); color: var(--text); }
+  .tl-filter.active { background: var(--accent3); color: #fff; border-color: var(--accent3); }
+
+  .timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-height: 420px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .timeline-list::-webkit-scrollbar { width: 5px; }
+  .timeline-list::-webkit-scrollbar-track { background: transparent; }
+  .timeline-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .tl-item {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(46,51,69,0.5);
+    transition: background 0.2s;
+    cursor: pointer;
+    border-radius: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .tl-item:last-child { border-bottom: none; }
+  .tl-item:hover { background: rgba(108,99,255,0.06); }
+
+  .tl-date-col {
+    flex-shrink: 0;
+    width: 72px;
+    text-align: right;
+    position: relative;
+  }
+
+  .tl-date-col::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+
+  .tl-month { font-size: 12px; font-weight: 600; color: var(--accent2); line-height: 1.2; }
+  .tl-year { font-size: 11px; color: var(--text-dim); }
+
+  .tl-line {
+    width: 2px;
+    background: var(--border);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .tl-content { flex: 1; min-width: 0; }
+
+  .tl-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .tl-title a {
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .tl-title a:hover { color: var(--accent); }
+
+  .tl-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tl-org {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .tl-country-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .tl-tag {
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    background: rgba(108,99,255,0.1);
+    color: #a5b4fc;
+    border: 1px solid rgba(108,99,255,0.2);
+  }
+
+  .tl-tag.hot {
+    background: rgba(255,107,107,0.12);
+    color: #fca5a5;
+    border-color: rgba(255,107,107,0.25);
+  }
+
+  .tl-tag.new {
+    background: rgba(0,212,170,0.12);
+    color: #6ee7b7;
+    border-color: rgba(0,212,170,0.25);
+  }
+
+  .tl-empty {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    padding: 32px 0;
+  }
+
+  /* === Reports Archive Section === */
+  .archive-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .archive-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .archive-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .archive-header h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent2);
+    border-radius: 2px;
+  }
+
+  .archive-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .ar-search {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+    width: 200px;
+    outline: none;
+  }
+  .ar-search:focus { border-color: var(--accent2); }
+
+  .ar-sort {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .archive-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .ar-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .ar-stat .num {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .ar-stat .label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .archive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+    max-height: 720px;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .archive-grid::-webkit-scrollbar { width: 6px; }
+  .archive-grid::-webkit-scrollbar-track { background: transparent; }
+  .archive-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .ar-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ar-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,212,170,0.08);
+  }
+
+  .ar-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ar-card-title {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--text);
+  }
+
+  .ar-card-title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .ar-card-title a:hover { color: var(--accent2); }
+
+  .ar-card-date {
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ar-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .ar-card-org {
+    font-size: 11px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  /* === X Feed Section === */
+  .x-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .x-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .x-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .x-header h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: #1da1f2;
+    border-radius: 2px;
+  }
+
+  .x-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px;
+  }
+
+  .x-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .x-card:hover {
+    border-color: #1da1f2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29, 161, 242, 0.1);
+  }
+
+  .x-card-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .x-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1da1f2, #6c63ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .x-info { flex: 1; min-width: 0; }
+  .x-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .x-handle {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .x-card-body {
+    padding: 14px 16px;
+    flex: 1;
+  }
+
+  .x-post {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.55;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(46,51,69,0.6);
+  }
+
+  .x-post:last-child { border-bottom: none; }
+
+  .x-post-date {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .x-card-footer {
+    padding: 12px 16px;
+    background: rgba(29, 161, 242, 0.06);
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .x-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #1da1f2;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  .x-link:hover { opacity: 0.85; }
+
+  .x-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  .x-no-account {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+
+  @media (max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .grid { grid-template-columns: 1fr; }
+    .header, .main { padding-left: 20px; padding-right: 20px; }
+    .detail-panel { width: 100%; right: -100%; }
+    .timeline-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .tl-date-col { width: 60px; }
+    .archive-grid { grid-template-columns: 1fr; max-height: 600px; }
+    .x-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-top">
-    <h1>GCC & 중동 일일 뉴스 대시보드 (전체 기사)</h1>
-    <div class="date-badge"><span class="live-dot"></span><span id="currentDate"></span></div>
+  <h1>Middle East & Saudi Arabia Think Tanks</h1>
+  <p>중동·사우디 싱크탱크 및 연구기관 인터랙티브 대시보드 | 2026년 4월 기준</p>
+  <div class="controls">
+    <button class="filter-btn active" data-filter="all">전체</button>
+    <button class="filter-btn" data-filter="SA">사우디</button>
+    <button class="filter-btn" data-filter="AE">UAE</button>
+    <button class="filter-btn" data-filter="QA">카타르</button>
+    <button class="filter-btn" data-filter="BH">바레인</button>
+    <button class="filter-btn" data-filter="IL">이스라엘</button>
+    <button class="filter-btn" data-filter="geo">외교·안보</button>
+    <button class="filter-btn" data-filter="energy">에너지·경제</button>
+    <input class="search-box" type="text" placeholder="기관명 검색..." id="searchInput">
   </div>
-  <div class="stats-bar" id="statsBar"></div>
 </div>
 
-<div class="controls" id="controls"></div>
+<div class="main">
+  <div class="stats-row">
+    <div class="stat-card"><div class="num" id="totalCount">14</div><div class="label">총 기관 수</div></div>
+    <div class="stat-card"><div class="num">6</div><div class="label">국가</div></div>
+    <div class="stat-card"><div class="num">38+</div><div class="label">최근 6개월 보고서</div></div>
+    <div class="stat-card"><div class="num">1983</div><div class="label">최초 설립연도</div></div>
+  </div>
 
-<div class="search-bar">
-  <input type="text" class="search-input" id="searchInput" placeholder="뉴스 검색 (키워드, 언론사, 토픽)...">
+  <div class="section-title">최신 보고서 타임라인 <span class="pulse-dot"></span></div>
+  <div class="timeline-section">
+    <div class="timeline-header">
+      <h2>Latest Reports & Activities</h2>
+      <div class="timeline-filters">
+        <button class="tl-filter active" data-tl="all">전체</button>
+        <button class="tl-filter" data-tl="geo">외교·안보</button>
+        <button class="tl-filter" data-tl="energy">에너지</button>
+        <button class="tl-filter" data-tl="SA">사우디</button>
+        <button class="tl-filter" data-tl="QA">카타르</button>
+        <button class="tl-filter" data-tl="AE">UAE</button>
+      </div>
+    </div>
+    <div class="timeline-list" id="timelineList"></div>
+  </div>
+
+  <div class="section-title">📚 보고서 아카이브 (최근 6개월)</div>
+  <div class="archive-section">
+    <div class="archive-stats" id="archiveStats"></div>
+    <div class="archive-header">
+      <h2>All Reports</h2>
+      <div class="archive-toolbar">
+        <input type="text" class="ar-search" id="arSearch" placeholder="보고서 제목 검색...">
+        <select class="ar-sort" id="arSort">
+          <option value="newest">최신순</option>
+          <option value="oldest">오래된 순</option>
+          <option value="org">기관별</option>
+        </select>
+        <select class="ar-sort" id="arOrgFilter">
+          <option value="all">전체 기관</option>
+        </select>
+      </div>
+    </div>
+    <div class="archive-grid" id="archiveGrid"></div>
+  </div>
+
+  <div class="section-title">𝕏 기관별 X(Twitter) 피드</div>
+  <div class="x-section">
+    <div class="x-header">
+      <h2>Latest from X (Twitter)</h2>
+      <span style="font-size:11px;color:var(--text-dim);">각 기관의 X 계정 바로가기 - 클릭하면 최신 게시물로 이동</span>
+    </div>
+    <div class="x-grid" id="xGrid"></div>
+  </div>
+
+  <div class="section-title">국가별 분포</div>
+  <div class="map-section">
+    <div class="country-pills" id="countryPills"></div>
+  </div>
+
+  <div class="section-title">기관 목록</div>
+  <div class="grid" id="cardGrid"></div>
 </div>
 
-<div class="main" id="mainContent"></div>
-<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+<div class="overlay" id="overlay"></div>
+<div class="detail-panel" id="detailPanel">
+  <button class="detail-close" id="detailClose">&times;</button>
+  <div class="detail-content" id="detailContent"></div>
+</div>
 
 <script>
-// p = priority (10=headline/breaking, 8=major policy/strategy, 7=deep analysis, 6=significant economic, 5=important diplomatic, 4=moderate, 3=routine, 2=minor biz, 1=routine corporate)
-// r = rank label: "속보","헤드라인","심층분석","정책발표","주요경제","" (empty=no badge)
-const D = [
-// ========== SAUDI MEDIA: SPA ==========
-{id:1,p:10,r:"헤드라인",t:"Saudi FM welcomes Iran-US ceasefire, urges reopening of Strait of Hormuz",k:"사우디 외무장관, 이란-미국 휴전 환영…호르무즈 해협 재개방 촉구",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia's Foreign Ministry officially welcomed the ceasefire announcement between the US and Iran, urging an immediate end to attacks on regional countries and calling for the reopening of the Strait of Hormuz.",
- mk:"사우디 외교부는 미국과 이란 간의 휴전 발표를 공식 환영하며, 역내 국가에 대한 공격 즉각 중단과 호르무즈 해협 재개방을 촉구했다.",
- tg:["외교","휴전","호르무즈해협"],u:"https://www.spa.gov.sa/en"},
-{id:2,p:10,r:"속보",t:"Saudi defences intercept and destroy ballistic missiles in Eastern Region",k:"사우디 방공망, 동부지역 탄도미사일 요격 및 파괴",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Saudi Ministry of Defence announced the interception and destruction of multiple ballistic missiles targeting the Eastern Province.",
- mk:"사우디 국방부는 동부 주를 겨냥한 다수의 탄도미사일을 요격·파괴했다고 발표했다.",
- tg:["안보","방위","동부주"],u:"https://www.spa.gov.sa/en"},
-{id:3,p:3,r:"",t:"Saudi Crown Prince receives written message from South Sudan President",k:"사우디 왕세자, 남수단 대통령의 서한 접수",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Crown Prince Mohammed bin Salman received a written message from the President of South Sudan regarding bilateral relations and regional developments.",
- mk:"무함마드 빈 살만 왕세자가 남수단 대통령으로부터 양국 관계 및 지역 정세에 관한 서한을 접수했다.",
- tg:["외교","왕실","남수단"],u:"https://english.aawsat.com/gulf/5260160"},
-{id:4,p:3,r:"",t:"Saudi FM receives written message from Spanish counterpart",k:"사우디 외무장관, 스페인 외무장관 서한 접수",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Saudi Foreign Minister received a written message from the Spanish FM regarding bilateral cooperation and the regional situation.",
- mk:"사우디 외무장관이 양국 협력 및 지역 정세에 관한 스페인 외무장관의 서한을 접수했다.",
- tg:["외교","스페인"],u:"https://english.aawsat.com/gulf/5260161"},
-{id:5,p:9,r:"속보",t:"Saudi Arabia intercepts 5 ballistic missiles and 9 drones in recent hours",k:"사우디, 최근 수시간 내 탄도미사일 5발·드론 9대 요격",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Saudi air defences intercepted 5 ballistic missiles and 9 drones targeting the Kingdom in recent hours, the Defence Ministry confirmed.",
- mk:"사우디 방공망이 최근 수시간 동안 왕국을 겨냥한 탄도미사일 5발과 드론 9대를 요격했다고 국방부가 확인했다.",
- tg:["안보","미사일","드론"],u:"https://english.aawsat.com/gulf/5260156"},
-{id:6,p:5,r:"",t:"Saudi FM discusses regional developments with Zayani, Ishaq Dar",k:"사우디 외무장관, 자야니·이샤크 다르와 지역 정세 논의",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Saudi FM held talks with Bahraini and Pakistani counterparts regarding the evolving regional security situation and diplomatic coordination.",
- mk:"사우디 외무장관이 바레인·파키스탄 외무장관과 지역 안보 정세 및 외교 공조를 논의했다.",
- tg:["외교","파키스탄","바레인"],u:"https://english.aawsat.com/gulf/5259937"},
-{id:7,p:5,r:"",t:"Saudi Arabia condemns storming of Kuwait Consulate in Iraq's Basra",k:"사우디, 이라크 바스라 쿠웨이트 영사관 습격 규탄",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia officially condemned the storming of the Kuwait Consulate in Basra, Iraq, calling it a violation of diplomatic norms.",
- mk:"사우디는 이라크 바스라의 쿠웨이트 영사관 습격을 외교 규범 위반이라며 공식 규탄했다.",
- tg:["외교","이라크","쿠웨이트"],u:"https://english.aawsat.com/gulf/5259936"},
-{id:8,p:8,r:"헤드라인",t:"Saudi Arabia hopes ceasefire will achieve 'comprehensive and sustainable de-escalation'",k:"사우디, 휴전이 '포괄적이고 지속 가능한 긴장 완화'로 이어지길 희망",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia expressed hope that the ceasefire will lead to comprehensive and sustainable de-escalation in the region.",
- mk:"사우디는 이번 휴전이 지역의 포괄적이고 지속 가능한 긴장 완화로 이어지기를 희망한다고 밝혔다.",
- tg:["휴전","외교","안보"],u:"https://english.aawsat.com/gulf/5260018"},
-{id:9,p:5,r:"",t:"Saudi, Austrian FMs discuss regional developments",k:"사우디·오스트리아 외무장관, 지역 정세 논의",s:"SPA",c:"saudi",d:"2026-04-07",
- m:"Saudi and Austrian foreign ministers met in Riyadh to discuss the regional tensions, Strait of Hormuz, and Iranian attacks on GCC.",
- mk:"사우디·오스트리아 외무장관이 리야드에서 지역 긴장, 호르무즈 해협, 이란의 GCC 공격에 대해 논의했다.",
- tg:["외교","오스트리아","GCC"],u:"https://english.aawsat.com/gulf/5259782"},
-{id:10,p:6,r:"",t:"Saudi Arabia strongly condemns Israeli minister's storming of Al-Aqsa courtyards",k:"사우디, 이스라엘 장관의 알아크사 사원 침입 강력 규탄",s:"SPA",c:"saudi",d:"2026-04-07",
- m:"Saudi Arabia issued a strong condemnation of the Israeli minister's entry into Al-Aqsa Mosque courtyards.",
- mk:"사우디는 이스라엘 장관의 알아크사 사원 안뜰 진입을 강력히 규탄했다.",
- tg:["외교","이스라엘","알아크사"],u:"https://english.aawsat.com/gulf/5259781"},
-{id:11,p:4,r:"",t:"Saudi FM meets Jordanian counterpart, holds phone talks with Peruvian FM",k:"사우디 외무장관, 요르단 외무장관 회동…페루 외무장관과 전화 통화",s:"SPA",c:"saudi",d:"2026-04-07",
- m:"Saudi FM met Jordanian counterpart and held phone talks with Peruvian FM to discuss bilateral and regional developments.",
- mk:"사우디 외무장관이 요르단 외무장관을 만나고 페루 외무장관과 전화로 양자·지역 정세를 논의했다.",
- tg:["외교","요르단","페루"],u:"https://english.aawsat.com/gulf/5259541"},
-{id:12,p:6,r:"정책발표",t:"Saudi Arabia-Russia visa-free travel agreement takes effect May 11",k:"사우디-러시아 무비자 여행 협정 5월 11일 발효",s:"SPA",c:"saudi",d:"2026-04-07",
- m:"The Saudi Arabia-Russia agreement on visa-free travel for holders of diplomatic, special, and official passports takes effect on May 11.",
- mk:"사우디-러시아 간 외교·특수·관용 여권 소지자 무비자 여행 협정이 5월 11일부터 발효된다.",
- tg:["외교","러시아","비자"],u:"https://english.aawsat.com/gulf/5259538"},
-{id:13,p:9,r:"속보",t:"Saudi air defenses intercept and destroy 11 ballistic missiles from Iran",k:"사우디 방공망, 이란발 탄도미사일 11발 요격·파괴",s:"SPA",c:"saudi",d:"2026-04-07",
- m:"Saudi air defenses successfully intercepted and destroyed 11 ballistic missiles fired by Iran targeting Saudi territory.",
- mk:"사우디 방공망이 사우디 영토를 겨냥해 이란이 발사한 탄도미사일 11발을 성공적으로 요격·파괴했다.",
- tg:["안보","미사일","이란"],u:"https://english.aawsat.com/gulf/5259537"},
-{id:14,p:4,r:"",t:"Saudi FM holds talks with Pakistani, Kuwaiti, and Latvian counterparts",k:"사우디 외무장관, 파키스탄·쿠웨이트·라트비아 외무장관과 회담",s:"SPA",c:"saudi",d:"2026-04-06",
- m:"Saudi FM held talks with Pakistani, Kuwaiti, and Latvian counterparts to discuss latest developments in the region.",
- mk:"사우디 외무장관이 파키스탄·쿠웨이트·라트비아 외무장관과 지역 최신 정세를 논의했다.",
- tg:["외교","파키스탄","쿠웨이트"],u:"https://english.aawsat.com/gulf/5259195"},
-{id:15,p:4,r:"",t:"Saudi Arabia intercepts and destroys two drones",k:"사우디, 드론 2대 요격·파괴",s:"SPA",c:"saudi",d:"2026-04-06",
- m:"Saudi air defenses intercepted and destroyed two drones targeting Saudi territory.",
- mk:"사우디 방공망이 사우디 영토를 겨냥한 드론 2대를 요격·파괴했다.",
- tg:["안보","드론"],u:"https://english.aawsat.com/gulf/5259251"},
-{id:16,p:2,r:"",t:"Saudi Crown Prince congratulates PM of Thailand on re-election",k:"사우디 왕세자, 태국 총리 재선 축하",s:"SPA",c:"saudi",d:"2026-04-06",
- m:"Crown Prince Mohammed bin Salman congratulated the Prime Minister of Thailand on re-election.",
- mk:"무함마드 빈 살만 왕세자가 태국 총리의 재선을 축하했다.",
- tg:["외교","태국"],u:"https://english.aawsat.com/gulf/5259196"},
-{id:17,p:6,r:"정책발표",t:"Aquarabia Qiddiya City officially welcomes visitors on April 23",k:"아쿠아라비아 키디야시티, 4월 23일 공식 개장",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Aquarabia, the largest water theme park in the Middle East at Qiddiya City, will officially open to visitors on April 23, 2026.",
- mk:"중동 최대 수상 테마파크인 키디야시티의 아쿠아라비아가 2026년 4월 23일 공식 개장한다.",
- tg:["관광","엔터테인먼트","키디야"],u:"https://www.spa.gov.sa/en/N2552278"},
-{id:18,p:4,r:"",t:"Industry Minister chairs second meeting of Industrial Council",k:"산업부 장관, 산업위원회 제2차 회의 주재",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"The Minister of Industry and Mineral Resources chaired the second meeting of the Industrial Council in its third term.",
- mk:"산업광물자원부 장관이 산업위원회 3기 제2차 회의를 주재했다.",
- tg:["산업","정책"],u:"https://spa.gov.sa/en/N2551778"},
-{id:19,p:9,r:"헤드라인",t:"Saudi Crown Prince, Kuwaiti counterpart discuss regional developments and US-Iran ceasefire",k:"사우디 왕세자·쿠웨이트 왕세자, 지역 정세 및 미·이란 휴전 논의",s:"SPA",c:"saudi",d:"2026-04-09",
- m:"Saudi Crown Prince MBS and Kuwaiti counterpart discussed regional developments and the US-Iran ceasefire.",
- mk:"무함마드 빈 살만 사우디 왕세자가 쿠웨이트 왕세자와 지역 정세 및 미·이란 휴전에 대해 논의했다.",
- tg:["외교","쿠웨이트","휴전"],u:"https://english.aawsat.com/gulf/5260366"},
-{id:20,p:7,r:"",t:"Saudi Arabia and UK say they support efforts to strengthen region's security",k:"사우디·영국, 지역 안보 강화 노력 지지 표명",s:"SPA",c:"saudi",d:"2026-04-09",
- m:"Saudi Arabia and the UK expressed mutual support for efforts to strengthen regional security and stability.",
- mk:"사우디와 영국이 지역 안보와 안정 강화를 위한 상호 지지를 표명했다.",
- tg:["외교","영국","안보"],u:"https://english.aawsat.com/gulf/5260367"},
-{id:21,p:4,r:"",t:"Saudi FM holds phone talks with Kuwaiti, Venezuelan counterparts",k:"사우디 외무장관, 쿠웨이트·베네수엘라 외무장관과 전화 통화",s:"SPA",c:"saudi",d:"2026-04-09",
- m:"Saudi Foreign Minister held phone talks with Kuwaiti and Venezuelan counterparts to discuss latest developments.",
- mk:"사우디 외무장관이 쿠웨이트·베네수엘라 외무장관과 최신 정세를 논의하는 전화 통화를 가졌다.",
- tg:["외교","쿠웨이트","베네수엘라"],u:"https://english.aawsat.com/gulf/5260372"},
-
-// ========== SAUDI MEDIA: ARAB NEWS ==========
-{id:22,p:9,r:"속보",t:"Debris falls near Saudi energy facilities as ballistic missiles shot down",k:"탄도미사일 격추 과정에서 파편이 사우디 에너지 시설 인근 낙하",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Saudi Defence Ministry confirmed nine drones intercepted and downed. A bridge linking Saudi Arabia to Bahrain was briefly closed amid Iran's escalation in the Gulf.",
- mk:"사우디 국방부는 드론 9대를 요격·격추했다고 확인했다. 이란의 걸프 지역 공격 확대로 사우디-바레인 연결 교량이 일시 폐쇄되었다.",
- tg:["안보","에너지","바레인"],u:"https://www.arabnews.com/node/2639009/saudi-arabia"},
-{id:23,p:4,r:"",t:"Saudi program builds new model school in Yemen",k:"사우디 개발 프로그램, 예멘에 새 모범학교 건설",s:"Arab News",c:"saudi",d:"2026-04-07",
- m:"Saudi Development and Reconstruction Program for Yemen continues building Al-Sabban model secondary school in Seiyun.",
- mk:"사우디 예멘 개발·재건 프로그램이 세이윤에서 알-사반 모범 중등학교 건설을 계속하고 있다.",
- tg:["예멘","개발","교육"],u:"https://www.arabnews.com/node/2639099/saudi-arabia"},
-{id:24,p:7,r:"",t:"Pakistan expresses 'unflinching solidarity' with Saudi Arabia after Jubail attack",k:"파키스탄, 주바일 공격 후 사우디에 '흔들림 없는 연대' 표명",s:"Arab News",c:"saudi",d:"2026-04-07",
- m:"Pakistan expressed full solidarity with Saudi Arabia following the attack on the Jubail oil facility.",
- mk:"파키스탄이 주바일 석유시설 공격 이후 사우디에 대한 완전한 연대를 표명했다.",
- tg:["외교","파키스탄","주바일"],u:"https://www.arabnews.com/saudiarabia"},
-{id:25,p:7,r:"정책발표",t:"Saudi Arabia designates 2026 the Year of Artificial Intelligence",k:"사우디, 2026년을 '인공지능의 해'로 지정",s:"Arab News",c:"saudi",d:"2026-04-07",
- m:"Saudi Arabia has designated 2026 as the Year of Artificial Intelligence, underscoring the Kingdom's growing leadership in global AI adoption.",
- mk:"사우디가 2026년을 인공지능의 해로 지정하여 글로벌 AI 도입에서의 리더십을 강조했다.",
- tg:["AI","기술","비전2030"],u:"https://www.arabnews.com/node/2636061/saudi-arabia"},
-{id:26,p:6,r:"주요경제",t:"Saudi Arabia's economy to grow by 4.5% in 2026 on non-oil gains",k:"사우디 경제, 비석유 부문 성장에 힘입어 2026년 4.5% 성장 전망",s:"Arab News",c:"saudi",d:"2026-04-06",
- m:"Saudi GDP expected to expand by 4.5% in 2026, outperforming global growth average of 3.4%, driven by non-oil sector expansion.",
- mk:"사우디 GDP가 비석유 부문 확대에 힘입어 2026년 4.5% 성장해 세계 평균 3.4%를 상회할 전망이다.",
- tg:["경제","GDP","비석유"],u:"https://www.arabnews.com/node/2628458/business-economy"},
-{id:27,p:6,r:"주요경제",t:"GCC debt markets poised for major growth in 2026",k:"GCC 채권시장, 2026년 대폭 성장 전망",s:"Arab News",c:"saudi",d:"2026-04-07",
- m:"GCC debt markets positioned for significant expansion in 2026, with Saudi Arabia leading issuance.",
- mk:"GCC 채권시장이 2026년 대폭 확대될 전망이며, 사우디가 발행을 주도하고 있다.",
- tg:["금융","채권시장","GCC"],u:"https://www.arabnews.com/node/2630105/business-economy"},
-
-// ========== SAUDI MEDIA: SAUDI GAZETTE ==========
-{id:28,p:4,r:"",t:"Saudi road network pivotal in enhancing logistics and mobility with GCC countries",k:"사우디 도로망, GCC 국가 간 물류·이동성 향상에 핵심 역할",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"The Roads General Authority affirmed the pivotal role of Saudi Arabia's road network in facilitating logistics and movement with GCC countries.",
- mk:"도로총국은 사우디 도로망이 GCC 국가 간 물류 및 이동을 촉진하는 핵심 역할을 하고 있다고 확인했다.",
- tg:["인프라","물류","GCC"],u:"https://saudigazette.com.sa/article/660277"},
-{id:29,p:8,r:"헤드라인",t:"Trump delays Iran strike deadline amid ongoing talks",k:"트럼프, 협상 진행 중 이란 공격 시한 연기",s:"Saudi Gazette",c:"saudi",d:"2026-04-06",
- m:"US President Trump delayed his deadline for strikes on Iran's energy infrastructure, citing progress in negotiations.",
- mk:"트럼프 대통령이 협상 진전을 이유로 이란 에너지 인프라 공격 시한을 연기했다.",
- tg:["미국","이란","협상"],u:"https://saudigazette.com.sa/article/660040"},
-{id:30,p:7,r:"정책발표",t:"Saudi Arabia approves regulations for four special economic zones",k:"사우디, 4개 특별경제구역 규정 승인",s:"Saudi Gazette",c:"saudi",d:"2026-04-06",
- m:"Saudi Arabia approved regulatory frameworks for four SEZs in Jazan, Ras Al-Khair, KAEC, and cloud computing, effective April 2026.",
- mk:"사우디가 자잔, 라스알카이르, KAEC, 클라우드 컴퓨팅 4개 특별경제구역 규정을 승인했다. 2026년 4월 발효.",
- tg:["경제","특별경제구역","투자"],u:"https://saudigazette.com.sa/article/657879"},
-{id:31,p:6,r:"주요경제",t:"Saudi Arabia approves $57.9 billion borrowing plan for 2026",k:"사우디, 2026년 579억 달러 차입 계획 승인",s:"Saudi Gazette",c:"saudi",d:"2026-04-05",
- m:"Saudi Arabia approved annual borrowing plan of $57.9 billion for 2026 fiscal year.",
- mk:"사우디가 2026 회계연도 579억 달러 규모의 연간 차입 계획을 승인했다.",
- tg:["재정","차입","예산"],u:"https://www.saudigazette.com.sa/article/657905"},
-
-// ========== SAUDI MEDIA: ARGAAM ==========
-{id:32,p:8,r:"속보",t:"Saudi air defenses intercept 5 ballistic missiles",k:"사우디 방공망, 탄도미사일 5발 요격",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Saudi air defenses intercepted 5 ballistic missiles targeting the Kingdom.",mk:"사우디 방공망이 왕국을 겨냥한 탄도미사일 5발을 요격했다.",
- tg:["안보","미사일"],u:"https://www.argaam.com/en/article/articledetail/id/1894608"},
-{id:33,p:8,r:"헤드라인",t:"TASI rises 2.3% to 11,339 pts on ceasefire optimism",k:"TASI, 휴전 낙관론에 2.3% 상승 (11,339p)",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Saudi stock market index TASI rose 2.3% to 11,339 points amid ceasefire optimism.","mk":"사우디 증시 TASI가 휴전 낙관론 속에 2.3% 상승한 11,339포인트를 기록했다.",
- tg:["증시","TASI"],u:"https://www.argaam.com/en/market-daily-report/3/57286"},
-{id:34,p:7,r:"주요경제",t:"PIF, King Street launch private credit fund",k:"PIF·킹스트리트, 사모신용 펀드 출범",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Saudi Public Investment Fund partnered with King Street to launch a new private credit fund.",mk:"사우디 국부펀드(PIF)가 킹스트리트와 파트너십으로 새 사모신용 펀드를 출범했다.",
- tg:["투자","PIF","펀드"],u:"https://www.argaam.com/en/article/articledetail/id/1894623"},
-{id:35,p:5,r:"",t:"King Abdulaziz Airport handles 14.8M passengers",k:"킹 압둘아지즈 공항 1,480만 명 처리",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"King Abdulaziz International Airport handled 14.8 million passengers.",mk:"킹 압둘아지즈 국제공항이 1,480만 명의 승객을 처리했다.",
- tg:["공항","관광"],u:"https://www.argaam.com/en/article/articledetail/id/1894629"},
-{id:36,p:7,r:"주요경제",t:"Saudi Arabia welcomes 37.2M tourists in Q1 2026",k:"사우디, 2026년 1분기 관광객 3,720만 명 유치",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia welcomed 37.2 million tourists in the first quarter of 2026.",mk:"사우디가 2026년 1분기에 3,720만 명의 관광객을 유치했다.",
- tg:["관광","경제"],u:"https://www.argaam.com/en/article/articledetail/id/1894716"},
-{id:37,p:5,r:"",t:"POS transactions hit SAR 14.7B",k:"POS 결제 147억 리얄 돌파",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Point-of-sale transactions in Saudi Arabia hit SAR 14.7 billion.",mk:"사우디의 POS(판매시점) 거래가 147억 리얄을 기록했다.",
- tg:["금융","소비"],u:"https://www.argaam.com/en/article/articledetail/id/1894683"},
-{id:38,p:5,r:"정책발표",t:"HRSD Ministry rolls out employment contracts phase 2",k:"인적자원부, 고용계약 2단계 시행",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"HRSD Ministry launched the second phase of digital employment contracts.",mk:"인적자원사회개발부가 디지털 고용계약 2단계를 시행했다.",
- tg:["고용","정책"],u:"https://www.argaam.com/en/article/articledetail/id/1894690"},
-{id:39,p:4,r:"",t:"Taiba gets CMA approval for 92% capital increase",k:"타이바, CMA로부터 92% 증자 승인",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Taiba Investment received Capital Market Authority approval for a 92% capital increase.",mk:"타이바 투자가 자본시장청(CMA)으로부터 92% 증자 승인을 받았다.",
- tg:["기업","증자","투자"],u:"https://www.argaam.com/en/article/articledetail/id/1894832"},
-{id:40,p:5,r:"",t:"SAIB issues SAR-denominated AT1 sukuk",k:"SAIB, 리얄화 AT1 수쿠크 발행",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Saudi Investment Bank (SAIB) issued SAR-denominated Additional Tier 1 sukuk.",mk:"사우디투자은행(SAIB)이 리얄화 추가 Tier1(AT1) 수쿠크를 발행했다.",
- tg:["은행","수쿠크","금융"],u:"https://www.argaam.com/en/article/articledetail/id/1894821"},
-{id:41,p:7,r:"주요경제",t:"Riyad Capital sees Saudi economy up 4.3% in 2026",k:"리야드캐피탈, 2026년 사우디 경제성장률 4.3% 전망",s:"Argaam",c:"saudi",d:"2026-04-07",
- m:"Riyad Capital expects Saudi economy to grow 4.3% in 2026, oil sector 6.2%.",mk:"리야드캐피탈은 2026년 사우디 경제 4.3%, 석유 부문 6.2% 성장을 전망했다.",
- tg:["경제","GDP","석유"],u:"https://www.argaam.com/en/article/articledetail/id/1883272"},
-{id:42,p:6,r:"주요경제",t:"SNB Capital: Saudi market positioned for strong 2026 performance",k:"SNB캐피탈: 사우디 시장, 2026년 강력한 성과 기대",s:"Argaam",c:"saudi",d:"2026-04-06",
- m:"SNB Capital expects Saudi GDP 4.7% growth, oil GDP 8%, non-oil GDP 4%.",mk:"SNB캐피탈은 사우디 GDP 4.7%, 석유 GDP 8%, 비석유 GDP 4% 성장을 전망했다.",
- tg:["경제","시장","투자"],u:"https://www.argaam.com/en/article/articledetail/id/1872101"},
-{id:43,p:6,r:"",t:"Investors bet on oil price decline post-ceasefire",k:"투자자들, 휴전 이후 유가 하락에 베팅",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Investors are betting on oil price decline following the Iran-US ceasefire announcement.",mk:"투자자들이 이란-미국 휴전 발표 이후 유가 하락에 베팅하고 있다.",
- tg:["석유","시장","휴전"],u:"https://www.argaam.com/en/article/articledetail/id/1894959"},
-{id:44,p:2,r:"",t:"Mayar's subsidiary sets up elevator maintenance firm in Riyadh",k:"마야르 자회사, 리야드에 엘리베이터 유지보수 회사 설립",s:"Argaam",c:"saudi",d:"2026-04-09",
- m:"Mayar's subsidiary established an elevator maintenance company in Riyadh.",mk:"마야르의 자회사가 리야드에 엘리베이터 유지보수 회사를 설립했다.",
- tg:["기업","부동산"],u:"https://www.argaam.com/en/article/articledetail/id/1894957"},
-{id:45,p:3,r:"",t:"Alkhorayef signs SAR 52.2M O&M contract in Jazan",k:"알코라예프, 자잔에서 5,220만 리얄 운영유지 계약 체결",s:"Argaam",c:"saudi",d:"2026-04-09",
- m:"Alkhorayef signed a SAR 52.2 million operation & maintenance contract in Jazan.",mk:"알코라예프가 자잔에서 5,220만 리얄 규모의 운영 및 유지보수 계약을 체결했다.",
- tg:["기업","계약","자잔"],u:"https://www.argaam.com/en/article/articledetail/id/1894946"},
-{id:46,p:3,r:"",t:"Jarir opens new showroom at Kuwait's Gate Mall",k:"자리르, 쿠웨이트 게이트몰에 새 매장 오픈",s:"Argaam",c:"saudi",d:"2026-04-09",
- m:"Jarir Marketing opened a new showroom at Kuwait's Gate Mall.",mk:"자리르 마케팅이 쿠웨이트 게이트몰에 새 매장을 열었다.",
- tg:["소매","쿠웨이트","확장"],u:"https://www.argaam.com/en/article/articledetail/id/1894945"},
-{id:47,p:4,r:"",t:"Acwa Vice Chairman resigns; Yazeed Alhumied appointed as successor",k:"ACWA 부회장 사임, 야지드 알후미에드 후임 선임",s:"Argaam",c:"saudi",d:"2026-04-09",
- m:"ACWA Power's Vice Chairman resigned and Yazeed Alhumied was appointed as successor.",mk:"ACWA 파워 부회장이 사임하고 야지드 알후미에드가 후임으로 선임되었다.",
- tg:["기업","인사","에너지"],u:"https://www.argaam.com/en/article/articledetail/id/1894951"},
-{id:48,p:4,r:"",t:"Cryptocurrencies rise as Bitcoin hits three-week high",k:"비트코인 3주 최고치…암호화폐 상승",s:"Argaam",c:"saudi",d:"2026-04-08",
- m:"Cryptocurrencies rallied with Bitcoin hitting a three-week high amid ceasefire optimism.",mk:"휴전 낙관론 속에 비트코인이 3주 최고치를 기록하며 암호화폐가 상승했다.",
- tg:["암호화폐","비트코인"],u:"https://www.argaam.com/en/article/articledetail/id/1894684"},
-
-// ========== SAUDI MEDIA: ASHARQ AL-AWSAT ==========
-{id:49,p:9,r:"속보",t:"Iran attacks on Gulf states continue despite ceasefire announcement",k:"이란, 휴전 발표에도 걸프 국가 공격 지속",s:"Asharq Al-Awsat",c:"saudi",d:"2026-04-08",
- m:"Iran continued attacks on Gulf states despite the ceasefire announcement, raising questions about enforcement.",mk:"이란이 휴전 발표에도 걸프 국가에 대한 공격을 지속해 이행 여부에 의문이 제기되고 있다.",
- tg:["안보","휴전","이란"],u:"https://english.aawsat.com/gulf/5260255"},
-{id:50,p:5,r:"",t:"Pakistani support renewed to Saudi Arabia amid Iran attacks",k:"파키스탄, 이란 공격 속 사우디 지원 재확인",s:"Asharq Al-Awsat",c:"saudi",d:"2026-04-08",
- m:"Pakistan renewed its support and solidarity with Saudi Arabia amid continued Iranian attacks.",mk:"파키스탄이 이란의 지속적인 공격 속에서 사우디에 대한 지원과 연대를 재확인했다.",
- tg:["외교","파키스탄"],u:"https://english.aawsat.com/gulf/5259933"},
-
-// ========== WESTERN MEDIA ==========
-{id:51,p:10,r:"속보",t:"Saudi Arabia's crucial East-West pipeline hit by drone attack",k:"사우디 핵심 동서 파이프라인, 드론 공격으로 피격",s:"Bloomberg",c:"western",d:"2026-04-08",
- m:"A key Saudi oil pipeline to the Red Sea was hit in a drone attack hours after ceasefire, diverting 7M bpd from eastern fields to Yanbu. Damage was limited and flows continued.",
- mk:"휴전 수시간 후 홍해로 향하는 사우디 핵심 석유 파이프라인(동부 유전~얀부, 일 700만 배럴 수송)이 드론 공격을 받았다. 피해는 제한적이며 수송은 계속되었다.",
- tg:["에너지","파이프라인","안보"],u:"https://www.bloomberg.com/news/articles/2026-04-08/saudi-arabia-s-crucial-east-west-pipeline-hit-by-drone-attack"},
-{id:52,p:8,r:"속보",t:"Saudi oil pipeline damage said to be limited after drone strike",k:"사우디 석유 파이프라인 드론 피격 피해 '제한적'",s:"Bloomberg",c:"western",d:"2026-04-08",
- m:"Saudi East-West pipeline suffered limited damage; crude flows from Yanbu continued without interruption.",mk:"사우디 동서 파이프라인 피해가 제한적이며 얀부발 원유 수출은 중단 없이 계속되었다.",
- tg:["에너지","파이프라인"],u:"https://www.bloomberg.com/news/articles/2026-04-08/saudi-oil-pipeline-damage-said-to-be-limited-after-drone-strike"},
-{id:53,p:9,r:"헤드라인",t:"Saudi Arabia lifts oil price to record premium as Strait of Hormuz narrows",k:"호르무즈 해협 봉쇄 속 사우디, 유가를 사상 최고 프리미엄으로 인상",s:"Bloomberg",c:"western",d:"2026-04-06",
- m:"Saudi Aramco raised Arab Light crude for Asia to record premium of $19.50 over regional benchmarks.",mk:"사우디 아람코가 아시아 판매용 아랍 라이트 원유를 지역 벤치마크 대비 사상 최고인 $19.50 프리미엄으로 인상했다.",
- tg:["석유","시장","호르무즈해협"],u:"https://www.bloomberg.com/news/articles/2026-04-06/saudis-raise-oil-price-to-record-premium-as-war-riles-markets"},
-{id:54,p:8,r:"심층분석",t:"The Petrodollar loop supporting the Treasury market is broken",k:"미국 국채시장을 지탱하던 페트로달러 순환 구조 붕괴",s:"Bloomberg",c:"western",d:"2026-04-06",
- m:"The traditional petrodollar recycling mechanism faces disruption as Middle East tensions reshape global energy trade patterns.",mk:"중동 긴장으로 글로벌 에너지 무역 구조가 재편되면서 페트로달러 재순환 메커니즘이 붕괴 위기에 처했다.",
- tg:["금융","페트로달러","국채"],u:"https://www.bloomberg.com/opinion/articles/2026-04-06/the-petrodollar-loop-supporting-the-treasury-market-is-broken"},
-{id:55,p:10,r:"속보",t:"Trump agrees to two-week Iran ceasefire to finalize talks",k:"트럼프, 이란과 2주 휴전 합의…협상 마무리 위해",s:"Bloomberg",c:"western",d:"2026-04-07",
- m:"President Trump announced a two-week ceasefire with Iran, brokered by Pakistan, to finalize peace talks.",mk:"트럼프 대통령이 파키스탄 중재로 이란과 2주간 휴전에 합의, 평화 협상 마무리를 위해.",
- tg:["휴전","미국","이란"],u:"https://www.bloomberg.com/news/live-blog/2026-04-07/iran-war-latest"},
-{id:56,p:5,r:"",t:"Pakistan says ready to support Saudi Arabia after attacks",k:"파키스탄, 사우디 공격 이후 지원 준비 완료 밝혀",s:"Bloomberg",c:"western",d:"2026-04-07",
- m:"Pakistan declared readiness to support Saudi Arabia amid escalating regional tensions.",mk:"파키스탄이 지역 긴장 고조 속에서 사우디 지원 준비를 밝혔다.",
- tg:["외교","방위","파키스탄"],u:"https://www.bloomberg.com/news/articles/2026-03-11/pakistan-says-will-be-there-before-it-is-needed-for-saudi-arabia"},
-{id:57,p:6,r:"",t:"Red Sea transit becoming a concern as war widens",k:"전쟁 확대로 홍해 통항 우려 고조",s:"Bloomberg",c:"western",d:"2026-04-07",
- m:"Red Sea maritime transit is becoming a growing concern as the Middle East war widens.",mk:"중동 전쟁이 확대되면서 홍해 해상 통항에 대한 우려가 고조되고 있다.",
- tg:["해운","홍해","안보"],u:"https://www.bloomberg.com/news/videos/2026-03-30/red-sea-transit-is-becoming-a-concern-as-war-widens-video"},
-{id:58,p:8,r:"헤드라인",t:"Three Gulf funds agree to back Paramount's $81B takeover of Warner",k:"걸프 3개 국부펀드, 파라마운트의 워너 $810억 인수 지원 합의",s:"WSJ",c:"western",d:"2026-04-05",
- m:"Saudi PIF, Qatar Investment Authority, and Abu Dhabi's L'imad Holding agreed to provide ~$10B toward Paramount's takeover.",mk:"사우디 PIF, 카타르투자청, 아부다비 리마드홀딩이 파라마운트 인수에 약 $100억 지원 합의.",
- tg:["투자","미디어","국부펀드"],u:"https://www.933thedrive.com/2026/04/05/three-gulf-funds-agree-to-back-paramounts-81-billion-takeover-of-warner-wsj-reports/"},
-{id:59,p:9,r:"헤드라인",t:"Saudi Arabia expects oil to climb over $180 if energy shock continues",k:"사우디, 에너지 충격 지속 시 유가 $180 돌파 전망",s:"WSJ",c:"western",d:"2026-04-07",
- m:"Saudi officials project oil prices could soar past $180/bbl if Iran war disruptions persist until late April.",mk:"사우디 당국자들은 이란 전쟁 혼란이 4월 말까지 지속 시 유가가 $180을 넘을 수 있다고 전망.",
- tg:["석유","경제","전망"],u:"https://www.marketscreener.com/news/saudi-arabia-expects-oil-to-climb-over-180-if-energy-shock-continues-until-late-april-wsj-reports-ce7e5edfd98af325"},
-{id:60,p:9,r:"심층분석",t:"Saudis and UAE take steps toward joining Iran war",k:"사우디·UAE, 이란 전쟁 참전 방향으로 조치",s:"WSJ",c:"western",d:"2026-04-06",
- m:"Saudi Arabia and UAE have taken some steps toward joining the Iran war, including allowing US forces to use Saudi air bases. FM said 'patience with Iranian attacks is not unlimited.'",
- mk:"사우디와 UAE가 미군의 사우디 공군기지 사용 허용 등 이란 전쟁 참전 방향 조치를 취했다. 외무장관은 '이란 공격에 대한 인내에 한계가 있다'고 밝혔다.",
- tg:["안보","참전","미국"],u:"https://www.bloomberg.com/news/articles/2026-03-24/saudis-uae-take-some-steps-toward-joining-iran-war-wsj-says"},
-{id:61,p:6,r:"주요경제",t:"GCC sovereign credit landscape reflects a stable outlook",k:"GCC 국가 신용 전망 '안정적' 유지",s:"S&P/FT",c:"western",d:"2026-04-08",
- m:"Saudi Arabia holds A+ credit rating from S&P Global with stable outlook, underpinned by hydrocarbon revenues.",mk:"사우디가 S&P 글로벌 A+ 신용등급·안정적 전망을 유지, 탄화수소 수입이 뒷받침.",
- tg:["신용","경제","등급"],u:"https://thebftonline.com/2026/04/08/the-gcc-sovereign-credit-landscape-reflects-a-stable-outlook/"},
-{id:62,p:8,r:"심층분석",t:"The Gulf's growth model faces its first true stress test",k:"걸프 성장 모델, 첫 번째 진정한 스트레스 테스트에 직면",s:"AGBI/FT",c:"western",d:"2026-04-08",
- m:"Saudi Arabia and UAE could see GDP fall by 3% and 5% respectively. Qatar and Kuwait could see up to 14% GDP contractions.",mk:"사우디·UAE GDP 각각 3%·5% 하락 가능. 카타르·쿠웨이트는 최대 14% GDP 축소 가능.",
- tg:["경제","다각화","리스크"],u:"https://www.agbi.com/opinion/economy/2026/04/matein-khalid-the-gulfs-growth-model-faces-its-first-true-stress-test/"},
-{id:63,p:7,r:"심층분석",t:"Gulf turns to pandemic playbook to head off another downturn",k:"걸프, 팬데믹 대응 전략으로 경기 침체 방어",s:"AGBI",c:"western",d:"2026-04-08",
- m:"GCC states are taking pre-emptive action using pandemic-era economic playbook to head off downturn.",mk:"GCC 국가들이 팬데믹 시기 경제 전략을 활용해 선제적으로 경기 침체를 방어하고 있다.",
- tg:["경제","정책","GCC"],u:"https://www.agbi.com/economy/2026/04/gulf-turns-to-pandemic-playbook-to-head-off-another-downturn/"},
-{id:64,p:7,r:"주요경제",t:"GCC can withstand war-related shocks: IMF chief",k:"IMF 총재: GCC, 전쟁 관련 충격 견딜 수 있어",s:"Reuters",c:"western",d:"2026-04-07",
- m:"IMF chief expressed confidence GCC can withstand economic shocks, citing strong fiscal buffers and SWF reserves.",mk:"IMF 총재가 강력한 재정 완충장치와 국부펀드를 근거로 GCC의 충격 견딜 능력에 자신감 표명.",
- tg:["경제","IMF","회복력"],u:"https://enterpriseam.com/ksa/2026/04/07/gcc-can-withstand-war-related-shocks-imf-chief/"},
-{id:65,p:8,r:"심층분석",t:"A fragile US-Iran ceasefire sparks market relief — but no clear path to lasting peace",k:"취약한 미·이란 휴전, 시장에 안도감…그러나 지속 평화까지 먼 길",s:"CNBC",c:"western",d:"2026-04-08",
- m:"The ceasefire sparked a broad relief rally across assets, but experts warned any lasting deal will be complicated by trust deficits.",mk:"휴전이 전방위 안도 랠리를 촉발했지만 전문가들은 신뢰 부족으로 지속적 합의가 어려울 것이라 경고.",
- tg:["시장","휴전","투자"],u:"https://www.cnbc.com/2026/04/08/us-iran-war-ceasefire-middle-east-strait-of-hormuz-oil-markets.html"},
-{id:66,p:9,r:"속보",t:"Gulf countries scramble to intercept missiles hours into ceasefire",k:"걸프 국가들, 휴전 시작 수시간 만에 미사일 요격에 분주",s:"CNBC",c:"western",d:"2026-04-08",
- m:"Many Middle Eastern countries reported incoming missiles and drones from Iran, triggering air defenses across the Gulf within hours of the newly announced ceasefire.",
- mk:"휴전 발표 수시간 만에 중동 여러 국가가 이란발 미사일과 드론을 보고하며 걸프 전역 방공 체계가 가동되었다.",
- tg:["안보","미사일","휴전"],u:"https://www.cnbc.com/2026/04/08/iran-missile-attacks-after-us-ceasefire-gulf-air-defenses.html"},
-{id:67,p:8,r:"심층분석",t:"US and Iran ceasefire explainer: What to know",k:"미국-이란 휴전 해설: 알아야 할 사항",s:"CNN",c:"western",d:"2026-04-08",
- m:"The US and Iran agreed to a two-week ceasefire mediated by Pakistan. Iran must reopen Strait of Hormuz. Talks to continue in Islamabad.",
- mk:"미국과 이란이 파키스탄 중재로 2주 휴전에 합의. 이란은 호르무즈 해협 재개방 의무. 이슬라마바드에서 협상 계속.",
- tg:["휴전","미국","이란"],u:"https://edition.cnn.com/2026/04/08/middleeast/us-iran-ceasefire-explainer-war-intl-hnk"},
-{id:68,p:7,r:"",t:"Day 40 of Middle East conflict — Israel attacks Lebanon, Iran stops shipping through Hormuz",k:"중동 분쟁 40일 차 — 이스라엘 레바논 공격, 이란 호르무즈 해상수송 중단",s:"CNN",c:"western",d:"2026-04-08",
- m:"Live coverage of day 40: Israel attacks Lebanon, Iran stops shipping through Strait of Hormuz. Ceasefire announced.",mk:"40일 차 실시간 보도: 이스라엘 레바논 공격, 이란 호르무즈 해상수송 중단. 휴전 발표.",
- tg:["전쟁","레바논","호르무즈"],u:"https://edition.cnn.com/2026/04/08/world/live-news/iran-war-trump-us-ceasefire"},
-{id:69,p:9,r:"속보",t:"A fragile US-Iran ceasefire shows cracks as attacks continue across the region",k:"취약한 미·이란 휴전에 균열…지역 전역 공격 계속",s:"NPR",c:"western",d:"2026-04-08",
- m:"Despite ceasefire, attacks continue. Kuwait faced 28 Iranian drone attacks and UAE 35 by 16:23 GMT on April 8.",mk:"휴전에도 공격 계속. 4월 8일 16:23 GMT 기준 쿠웨이트 이란 드론 28회, UAE 35회 공격.",
- tg:["휴전","공격","걸프"],u:"https://www.npr.org/2026/04/08/nx-s1-5777291/iran-war-updates"},
-{id:70,p:9,r:"속보",t:"US and Iran agree to 2-week ceasefire, suspending Trump's threat",k:"미·이란 2주 휴전 합의, 트럼프의 이란 공격 위협 중단",s:"NPR",c:"western",d:"2026-04-07",
- m:"US and Iran agreed to ceasefire brokered by Pakistan, suspending Trump's threatened deadline for wiping out Iranian civilization.",mk:"미국과 이란이 파키스탄 중재 휴전에 합의, 트럼프의 이란 문명 파괴 위협 시한이 중단되었다.",
- tg:["휴전","미국","외교"],u:"https://www.npr.org/2026/04/07/nx-s1-5776377/iran-war-updates"},
-{id:71,p:5,r:"",t:"Foreign Secretary's statement: ceasefire in the Middle East",k:"영국 외무장관 성명: 중동 휴전",s:"UK Gov",c:"western",d:"2026-04-08",
- m:"UK Foreign Secretary issued statement on the ceasefire in the Middle East.",mk:"영국 외무장관이 중동 휴전에 대한 성명을 발표했다.",
- tg:["영국","휴전","외교"],u:"https://www.gov.uk/government/news/foreign-secretary-statement-ceasefire-in-the-middle-east-8-april"},
-{id:72,p:8,r:"심층분석",t:"Saudi Arabia rejects NYT report claiming it backs prolonged war with Iran",k:"사우디, NYT의 '이란과 장기전 지지' 보도 부인",s:"NYT/Al Arabiya",c:"western",d:"2026-04-07",
- m:"Saudi source denied NYT report that claimed the Kingdom encourages a prolonged US war with Iran. NYT had reported MBS speaking regularly with Trump, urging harsh action.",
- mk:"사우디 소식통이 '사우디가 미국의 이란 장기전을 고무한다'는 NYT 보도를 부인. NYT는 MBS가 트럼프와 정기적으로 대화하며 강경 대응을 촉구한다고 보도한 바 있다.",
- tg:["외교","NYT","미국"],u:"https://english.alarabiya.net/News/saudi-arabia/2026/03/16/saudi-source-denies-nyt-report-claiming-kingdom-encouraging-prolonged-iran-war"},
-{id:73,p:7,r:"심층분석",t:"Here's a list of Gulf energy infrastructure damaged in Iran war",k:"이란 전쟁에서 피해 입은 걸프 에너지 인프라 목록",s:"Insurance Journal",c:"western",d:"2026-04-07",
- m:"Comprehensive list of Gulf energy infrastructure damaged during the Iran war, including Saudi pipeline, Abu Dhabi gas complex, Kuwait power plants.",
- mk:"이란 전쟁 중 피해 입은 걸프 에너지 인프라 종합 목록: 사우디 파이프라인, 아부다비 가스 단지, 쿠웨이트 발전소 등.",
- tg:["에너지","인프라","피해"],u:"https://www.insurancejournal.com/news/international/2026/04/07/864740.htm"},
-{id:74,p:7,r:"심층분석",t:"Gulf States wary of Iran after Trump-brokered ceasefire",k:"트럼프 중재 휴전 후에도 이란에 경계 늦추지 않는 걸프 국가들",s:"Washington Today",c:"western",d:"2026-04-08",
- m:"Gulf States remain wary of Iran after Trump-brokered ceasefire, demanding concrete actions on nuclear program and Strait of Hormuz.",mk:"걸프 국가들이 트럼프 중재 휴전 후에도 이란의 핵 프로그램과 호르무즈 해협 관련 구체적 조치를 요구하며 경계를 유지.",
- tg:["휴전","걸프","이란"],u:"https://nationaltoday.com/us/dc/washington/news/2026/04/08/gulf-states-wary-of-iran-after-trump-brokered-ceasefire/"},
-{id:75,p:10,r:"속보",t:"Iran struck Saudi pipeline just hours after ceasefire",k:"이란, 휴전 불과 수시간 만에 사우디 파이프라인 공격",s:"Reuters/TBS",c:"western",d:"2026-04-08",
- m:"Iran struck Saudi Arabia's East-West Pipeline just hours after the ceasefire was agreed, hitting its only crude export route since hostilities began.",mk:"이란이 휴전 합의 수시간 만에 사우디 동서 파이프라인을 공격, 적대 행위 시작 이후 유일한 원유 수출 경로를 타격했다.",
- tg:["에너지","파이프라인","이란"],u:"https://www.tbsnews.net/world/iran-struck-saudi-arabia-oil-pipeline-just-hours-after-ceasefire-source-says-1406581"},
-
-// ========== REGIONAL/ARAB MEDIA ==========
-{id:76,p:10,r:"헤드라인",t:"GCC nations react to Iran-US ceasefire announcement",k:"GCC 국가들, 이란-미국 휴전 발표에 반응",s:"Al Jazeera",c:"other",d:"2026-04-08",
- m:"Gulf Arab nations reacted cautiously. All report continued attacks even after the truce.",mk:"걸프 아랍 국가들이 신중하게 반응. 휴전 후에도 공격 계속 보고.",
- tg:["휴전","GCC","이란"],u:"https://www.aljazeera.com/news/2026/4/8/gulf-arab-nations-react-to-iran-us-ceasefire-announcement"},
-{id:77,p:10,r:"속보",t:"UAE, Kuwait, Bahrain report attacks despite Iran-US ceasefire",k:"UAE·쿠웨이트·바레인, 휴전에도 공격 보고",s:"Al Jazeera",c:"other",d:"2026-04-08",
- m:"Qatar: 4 injured including child from missile debris. Kuwait and UAE dealt with incoming attacks.",mk:"카타르: 미사일 파편으로 어린이 포함 4명 부상. 쿠웨이트·UAE 유입 공격에 대응.",
- tg:["안보","휴전","걸프국가"],u:"https://www.aljazeera.com/news/2026/4/8/uae-kuwait-bahrain-report-attacks-despite-iran-us-ceasefire"},
-{id:78,p:7,r:"",t:"Iran war: What is happening on day 39 of US-Israeli attacks?",k:"이란 전쟁: 미국-이스라엘 공격 39일 차 현황",s:"Al Jazeera",c:"other",d:"2026-04-07",
- m:"Day 39 coverage including regional impact on Gulf countries and civilian casualties.",mk:"39일 차 보도: 걸프 국가 지역 영향 및 민간인 피해 포함.",
- tg:["전쟁","이란","39일차"],u:"https://www.aljazeera.com/news/2026/4/7/iran-war-what-is-happening-on-day-39-of-us-israeli-attacks"},
-{id:79,p:8,r:"속보",t:"Kuwait's power, water plants damaged as Iran keeps attacking Gulf states",k:"이란의 걸프 공격 지속…쿠웨이트 전력·수도 시설 피해",s:"Al Jazeera",c:"other",d:"2026-04-05",
- m:"Kuwait reported damage to power and water facilities from continued Iranian attacks.",mk:"쿠웨이트가 이란의 지속적 공격으로 전력 및 수도 시설 피해를 보고했다.",
- tg:["인프라","쿠웨이트","이란"],u:"https://www.aljazeera.com/news/2026/4/5/kuwait-says-power-water-facilities-hit-by-iran-as-gulf-attacks-continue"},
-{id:80,p:8,r:"속보",t:"Kuwait, UAE dealing with incoming attacks from Iran",k:"쿠웨이트·UAE, 이란발 공격에 대응 중",s:"Al Arabiya",c:"other",d:"2026-04-08",
- m:"Kuwait and UAE dealt with several incoming attacks from Iran after ceasefire announcement.",mk:"쿠웨이트와 UAE가 휴전 발표 이후에도 이란의 여러 공격에 대응 중.",
- tg:["안보","쿠웨이트","UAE"],u:"https://english.alarabiya.net/News/gulf/2026/04/08/kuwait-uae-dealing-with-incoming-attacks-from-iran-"},
-{id:81,p:7,r:"속보",t:"Iranian attack on residential area in Kuwait injures six",k:"이란, 쿠웨이트 주거지역 공격…6명 부상",s:"Al Arabiya",c:"other",d:"2026-04-06",
- m:"An Iranian attack on a residential area in Kuwait injured six people, the health ministry reported.",mk:"이란의 쿠웨이트 주거지역 공격으로 6명이 부상했다고 보건부가 발표.",
- tg:["안보","쿠웨이트","민간인"],u:"https://english.alarabiya.net/News/gulf/2026/04/06/iranian-attack-on-residential-area-in-kuwait-injures-six-health-ministry-"},
-{id:82,p:7,r:"",t:"Bahrain's main port to temporarily suspend operations",k:"바레인 주요 항구 운영 일시 중단",s:"Al Arabiya",c:"other",d:"2026-04-07",
- m:"Bahrain's main port will temporarily suspend operations from early Wednesday amid security concerns.",mk:"바레인 주요 항구가 안보 우려로 수요일 새벽부터 운영을 일시 중단한다.",
- tg:["항구","바레인","안보"],u:"https://english.alarabiya.net/News/gulf/2026/04/07/bahrain-s-main-port-to-temporarily-suspend-operations-from-early-wednesday"},
-{id:83,p:7,r:"",t:"Saudi source denies NYT report on encouraging prolonged Iran war",k:"사우디 소식통, NYT의 이란 전쟁 장기화 고무 보도 부인",s:"Al Arabiya",c:"other",d:"2026-04-07",
- m:"Saudi source refuted NYT claims that the Kingdom is encouraging a prolonged US war against Iran.",mk:"사우디 소식통이 '사우디가 미국의 이란 장기전을 고무하고 있다'는 NYT 보도를 반박했다.",
- tg:["외교","언론","NYT"],u:"https://english.alarabiya.net/News/saudi-arabia/2026/03/16/saudi-source-denies-nyt-report-claiming-kingdom-encouraging-prolonged-iran-war"},
-{id:84,p:8,r:"헤드라인",t:"Qatar urges Iran to 'cease all hostile acts,' welcomes ceasefire",k:"카타르, 이란에 '모든 적대 행위 중단' 촉구…휴전 환영",s:"Asharq Al-Awsat",c:"other",d:"2026-04-08",
- m:"Qatar urged Iran to cease all hostile acts and welcomed the ceasefire announcement.",mk:"카타르가 이란에 모든 적대 행위 중단을 촉구하고 휴전 발표를 환영했다.",
- tg:["외교","카타르","휴전"],u:"https://english.aawsat.com/gulf/5260047"},
-{id:85,p:8,r:"속보",t:"Kuwait says has been dealing with 'intense wave of Iranian attacks' for hours",k:"쿠웨이트, '수시간째 이란 공격의 격렬한 파도에 대응 중'",s:"Asharq Al-Awsat",c:"other",d:"2026-04-08",
- m:"Kuwait reported dealing with an intense wave of Iranian attacks for hours.",mk:"쿠웨이트가 수시간째 이란 공격의 격렬한 파도에 대응 중이라고 보고했다.",
- tg:["안보","쿠웨이트","이란"],u:"https://english.aawsat.com/gulf/5260041"},
-{id:86,p:8,r:"속보",t:"Falling debris after interception injures 3 at Abu Dhabi gas complex",k:"요격 후 파편 낙하로 아부다비 가스 단지에서 3명 부상",s:"Asharq Al-Awsat",c:"other",d:"2026-04-08",
- m:"Falling debris after missile interception injured 3 people at Abu Dhabi's Habshan gas complex.",mk:"미사일 요격 후 낙하한 파편으로 아부다비 합산 가스 단지에서 3명이 부상했다.",
- tg:["안보","UAE","에너지"],u:"https://english.aawsat.com/gulf/5259999"},
-{id:87,p:7,r:"속보",t:"Iranian drone attack in Bahrain injures two",k:"이란 드론, 바레인 공격…2명 부상",s:"Asharq Al-Awsat",c:"other",d:"2026-04-08",
- m:"An Iranian drone attack in Bahrain injured two people, the Interior Ministry reported.",mk:"이란의 드론 공격으로 바레인에서 2명이 부상했다고 내무부가 발표.",
- tg:["안보","바레인","드론"],u:"https://english.aawsat.com/gulf/5259974"},
-{id:88,p:6,r:"",t:"Bahrain busts cell for collaborating with Iran",k:"바레인, 이란 협력 조직 적발",s:"Asharq Al-Awsat",c:"other",d:"2026-04-07",
- m:"Bahrain busted a cell accused of collaborating with Iran.",mk:"바레인이 이란과 협력한 혐의의 조직을 적발했다.",
- tg:["안보","바레인","이란"],u:"https://english.aawsat.com/gulf/5259551"},
-{id:89,p:8,r:"헤드라인",t:"UN Security Council recognizes GCC expertise in first-ever presidential statement",k:"유엔 안보리, 사상 최초 의장 성명으로 GCC 전문성 인정",s:"UN News",c:"other",d:"2026-04-08",
- m:"Security Council acknowledged GCC's contributions to regional stability through mediation and diplomacy.",mk:"안보리가 중재와 외교를 통한 GCC의 지역 안정 기여를 인정했다.",
- tg:["유엔","외교","GCC"],u:"https://press.un.org/en/2026/sc16328.doc.htm"},
-{id:90,p:6,r:"",t:"ICAO condemns Iranian attacks on civil aviation",k:"ICAO, 이란의 민간 항공 공격 규탄",s:"ICAO",c:"other",d:"2026-04-06",
- m:"The International Civil Aviation Organization condemned Iranian attacks threatening civil aviation safety.",mk:"국제민간항공기구(ICAO)가 민간 항공 안전을 위협하는 이란의 공격을 규탄했다.",
- tg:["항공","안보","ICAO"],u:"https://english.aawsat.com/gulf/5259203"},
-{id:91,p:4,r:"",t:"MWL condemns attacks on UAE Embassy in Damascus",k:"세계이슬람연맹, 다마스쿠스 UAE 대사관 공격 규탄",s:"Gulf Media",c:"other",d:"2026-04-06",
- m:"Muslim World League condemned attacks on the UAE Embassy in Damascus, Syria.",mk:"세계이슬람연맹(MWL)이 시리아 다마스쿠스 UAE 대사관에 대한 공격을 규탄했다.",
- tg:["외교","시리아","UAE"],u:"https://english.aawsat.com/gulf/5259197"},
-{id:92,p:6,r:"",t:"Kuwait, Bahrain push preemptive measures, close bridges as Iran threatens transport",k:"쿠웨이트·바레인, 이란 위협에 선제 조치…교량 폐쇄",s:"Jerusalem Post",c:"other",d:"2026-04-08",
- m:"Kuwait and Bahrain took preemptive measures including bridge closures as Iran threatened transport infrastructure.",mk:"쿠웨이트와 바레인이 이란의 교통 인프라 위협에 교량 폐쇄 등 선제 조치를 취했다.",
- tg:["인프라","안보","교통"],u:"https://www.jpost.com/middle-east/iran-news/article-892345"},
-{id:93,p:8,r:"헤드라인",t:"Strait of Hormuz reopens after ceasefire",k:"휴전 후 호르무즈 해협 재개방",s:"Travel & Tour",c:"other",d:"2026-04-08",
- m:"As of April 8, 3 AM Tehran time, the Strait of Hormuz reopened to international travel.",mk:"4월 8일 테헤란 시각 오전 3시부로 호르무즈 해협이 국제 통항을 재개했다.",
- tg:["호르무즈","해운","관광"],u:"https://www.travelandtourworld.com/news/article/uae-joins-oman-iran-saudi-arabia-qatar-india-uk-france-germany-and-us-as-strait-of-hormuz-reopens-triggering-urgent-tourism-revival-across-the-gulf-and-also-allowing-stranded-travelers-to-move/"},
-{id:94,p:6,r:"",t:"IMO welcomes truce, secures shipping",k:"IMO, 휴전 환영…해상수송 안전 확보",s:"Argaam/IMO",c:"other",d:"2026-04-08",
- m:"International Maritime Organization welcomed the truce and moved to secure international shipping lanes.",mk:"국제해사기구(IMO)가 휴전을 환영하고 국제 해상수송 항로 안전 확보에 나섰다.",
- tg:["해운","IMO","안보"],u:"https://www.argaam.com/en/article/articledetail/id/1894713"},
-{id:95,p:7,r:"심층분석",t:"Where things stand with Iran after a tentative ceasefire",k:"잠정 휴전 후 이란 상황 정리",s:"PBS",c:"other",d:"2026-04-08",
- m:"Overview of the situation with Iran after the tentative 2-week ceasefire took effect.",mk:"잠정적인 2주 휴전 발효 이후 이란 상황에 대한 종합 정리.",
- tg:["분석","휴전","이란"],u:"https://www.pbs.org/newshour/world/where-things-stand-with-iran-after-a-tentative-2-week-ceasefire-took-effect"},
-
-// ========== KOREAN MEDIA ==========
-{id:96,p:9,r:"속보",t:"이란, 사우디아라비아 주바일 산업단지 공격 - 중동 최대 산업단지 타격",k:"",s:"Pravda Korea",c:"korean",d:"2026-04-08",
- m:"이란이 사우디아라비아의 주바일 산업단지를 공격했다. 이곳은 중동 지역에서 가장 큰 산업단지로, 공격으로 인한 피해 규모가 우려되고 있다.",mk:"",
- tg:["안보","산업","이란"],u:"https://korea.news-pravda.com/dprk/2026/04/08/62298.html",l:"ko"},
-{id:97,p:8,r:"속보",t:"이란, SABIC 단지 타격 - 이스라엘 아술루예 공격에 보복",k:"",s:"Pravda Korea",c:"korean",d:"2026-04-07",
- m:"이란은 이스라엘의 아술루예 석유화학 단지 공격에 대한 보복으로 사우디아라비아의 SABIC 단지를 타격했다.",mk:"",
- tg:["석유화학","보복공격","SABIC"],u:"https://korea.news-pravda.com/world/2026/04/07/62191.html",l:"ko"},
-{id:98,p:9,r:"헤드라인",t:"삼성전자 역대급 실적과 중동 휴전 소식에 증시 급등",k:"",s:"오늘의 클릭",c:"korean",d:"2026-04-08",
- m:"미국과 이란 간의 휴전 합의 소식과 삼성전자의 역대급 실적 발표가 겹치면서 투자 심리가 급반전, 증시가 급등했다.",mk:"",
- tg:["증시","삼성전자","휴전"],u:"https://www.cliktoday.com/2026/04/20260408-today-news.html",l:"ko"},
-{id:99,p:5,r:"",t:"중동 위기 경제 대응부터 AI 윤리 이슈까지",k:"",s:"오늘의 클릭",c:"korean",d:"2026-04-07",
- m:"중동 위기에 대한 한국 정부의 경제 대응책과 AI 윤리 문제에 대한 사회적 논의가 동시에 진행 중이다.",mk:"",
- tg:["경제대응","AI윤리","정책"],u:"https://www.cliktoday.com/2026/04/20260407-today-news.html",l:"ko"},
-{id:100,p:5,r:"",t:"중동발 에너지 위기와 윤석열 전 대통령 항소심 등 국내외 핵심 이슈",k:"",s:"오늘의 클릭",c:"korean",d:"2026-04-06",
- m:"중동발 에너지 위기가 한국 경제에 미치는 영향과 윤석열 전 대통령 항소심 등 국내외 핵심 이슈를 정리.",mk:"",
- tg:["에너지위기","국내정치"],u:"https://www.cliktoday.com/2026/04/20260406-today-news.html",l:"ko"},
-{id:101,p:8,r:"헤드라인",t:"중동 전쟁 여파: 환율 1,500원 돌파, 반도체 수출 역대 최대",k:"",s:"오늘의 클릭",c:"korean",d:"2026-04-03",
- m:"중동 전쟁 심화로 환율이 1,500원대에 진입하며 경제 불안이 커지고 있다. 반면 반도체 수출은 전년 대비 151% 급증하며 사상 최대치를 경신했다.",mk:"",
- tg:["환율","반도체","경제"],u:"https://www.cliktoday.com/2026/04/20260403-today-news.html",l:"ko"},
-{id:102,p:7,r:"심층분석",t:"중동 위기 속 스태그플레이션 우려와 AI·K-콘텐츠의 진화",k:"",s:"오늘의 클릭",c:"korean",d:"2026-04-01",
- m:"중동발 지정학적 불안정으로 인한 고유가·고환율이 한국 경제를 스태그플레이션 국면으로 몰아넣는 한편, AI 산업 경쟁과 우주·방산 기술 융합 등 미래 기술 혁신도 이어지고 있다.",mk:"",
- tg:["경제","스태그플레이션","AI"],u:"https://www.cliktoday.com/2026/04/20260401-today-news.html",l:"ko"},
-{id:103,p:8,r:"심층분석",t:"복잡한 심경의 사우디·UAE… 전쟁 원하는 이스라엘이 협상 걸림돌?",k:"",s:"MBC 뉴스",c:"korean",d:"2026-04-08",
- m:"사우디와 UAE의 복잡한 외교적 입장을 분석. 이스라엘이 협상의 걸림돌이 되고 있다는 전문가 분석이 이어지고 있다.",mk:"",
- tg:["외교","사우디","이스라엘"],u:"https://imnews.imbc.com/replay/2026/nwdesk/article/6810249_37004.html",l:"ko"},
-{id:104,p:9,r:"속보",t:"중동 하늘길 속속 개방 속 이스라엘·이란 공습 지속 '불안한 휴전'",k:"",s:"뉴스핌",c:"korean",d:"2026-04-09",
- m:"미국과 이란이 2주간 휴전에 합의한 직후 중동 국가들이 영공을 속속 재개방하고 있으나, 이스라엘과 이란의 공습이 지속되며 '불안한 휴전' 양상을 보이고 있다.",mk:"",
- tg:["휴전","영공","이란"],u:"https://www.newspim.com/news/view/20260409000013",l:"ko"},
-{id:105,p:8,r:"심층분석",t:"45일 휴전 뒤 종전안… 美·이란 출구 찾나",k:"",s:"서울신문",c:"korean",d:"2026-04-07",
- m:"미국과 이란이 2주 휴전을 시작으로 45일간의 전면 휴전 뒤 종전 합의를 모색하는 출구 전략을 검토 중이라는 분석.",mk:"",
- tg:["휴전","종전","외교"],u:"https://www.seoul.co.kr/news/international/2026/04/07/20260407001007",l:"ko"},
-{id:106,p:8,r:"헤드라인",t:"중동 전쟁 한 달, '4월 위기설' 확산…한국 경제 비상",k:"",s:"전국인력신문",c:"korean",d:"2026-04-06",
- m:"중동 전쟁이 한 달을 넘기면서 '4월 위기설'이 확산, 한국 경제에 비상이 걸렸다. 고유가·고환율·물류비 상승이 전 산업에 확산 중.",mk:"",
- tg:["경제","위기","물류"],u:"https://www.kjob.news/news/479379",l:"ko"},
-{id:107,p:8,r:"심층분석",t:"중동 전쟁 6개월 땐 유가 170달러…한국 경제 'R의 공포' 현실화",k:"",s:"글로벌이코노믹",c:"korean",d:"2026-04-05",
- m:"중동 전쟁이 6개월 지속 시 유가 170달러, 한국 경제에 'R(Recession)의 공포'가 현실화될 수 있다는 전망. 반도체·물가에 타격.",mk:"",
- tg:["유가","경기침체","전망"],u:"https://www.g-enews.com/article/Global-Biz/2026/04/202604051733127007fbbec65dfb_1",l:"ko"},
-{id:108,p:7,r:"주요경제",t:"중동전쟁에 소비자물가 2.4% 급등…내달엔 더 뛴다",k:"",s:"이데일리",c:"korean",d:"2026-04-07",
- m:"중동 전쟁으로 소비자물가가 전년 대비 2.4% 상승, 지난해 11월 이후 최고치. 다음 달에는 더 오를 전망.",mk:"",
- tg:["물가","인플레이션","경제"],u:"https://marketin.edaily.co.kr/News/ReadE?newsId=01502246645388568",l:"ko"},
-{id:109,p:7,r:"주요경제",t:"중동전쟁 4월부터 반영…무역흑자행진 제동 우려",k:"",s:"헤럴드경제",c:"korean",d:"2026-04-06",
- m:"중동 전쟁의 경제적 영향이 4월부터 본격 반영되면서 한국의 무역흑자 행진에 제동이 걸릴 우려가 커지고 있다.",mk:"",
- tg:["무역","흑자","경제"],u:"https://biz.heraldcorp.com/article/10712577",l:"ko"},
-{id:110,p:7,r:"",t:"중기 덮친 중동전쟁…유가·환율·물류비 '잔인한 4월'",k:"",s:"다음뉴스",c:"korean",d:"2026-04-06",
- m:"중소기업부에 따르면 중동전쟁 관련 중소기업 피해 접수 422건. 운송 차질 59.9%, 계약 취소 35.6%, 물류비 상승 33.8%.",mk:"",
- tg:["중소기업","물류비","피해"],u:"https://v.daum.net/v/20260331083904576",l:"ko"},
-{id:111,p:5,r:"",t:"중동 전쟁발 유가 쇼크, 대구·경북 물가 비상",k:"",s:"IT인사이트",c:"korean",d:"2026-04-05",
- m:"중동 전쟁발 유가 쇼크로 대구·경북 지역 물가가 비상 상황에 놓였다.",mk:"",
- tg:["물가","지방","유가"],u:"https://www.itinsight.kr/news/443982",l:"ko"}
-,
-// ========== ADDITIONAL SAUDI ARTICLES (added in re-monitoring) ==========
-{id:112,p:9,r:"헤드라인",t:"Saudi Arabia to develop 27 eco-cultural heritage sites in national parks",k:"사우디, 국립공원 내 27개 생태문화 유산 사이트 개발",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Heritage Commission and National Center for Vegetation Cover will develop 27 sites across multiple regions: 5 in Riyadh, 5 in Madinah, 2 in Eastern Province, 15 in Asir. Includes Naqra Valley rock inscriptions and historic Jawatha Mosque in Al-Ahsa.",
- mk:"사우디 문화유산위원회와 국가식생피복센터가 리야드 5곳, 마디나 5곳, 동부주 2곳, 아시르 15곳 등 총 27개 사이트를 개발한다. 나크라 계곡 암각화와 알아흐사 자와사 모스크 등이 포함됐다.",
- tg:["문화유산","국립공원","관광"],u:"https://saudigazette.com.sa/article/660369/saudi-arabia/saudi-arabia-to-develop-27-eco-cultural-heritage-sites-in-national-parks"},
-{id:113,p:8,r:"정책발표",t:"Saudi Arabia, Syria discuss exchange of expertise in disaster management",k:"사우디-시리아, 재난관리 전문성 교류 논의",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Interior Minister Prince Abdulaziz bin Saud bin Naif met Syrian Minister of Emergency and Disaster Management Raed Al-Saleh in Riyadh. They discussed risk prevention, modern technologies, training programs, and exchange of specialists in emergency and disaster management.",
- mk:"압둘아지즈 빈 사우드 빈 나이프 사우디 내무장관이 라에드 알살레 시리아 비상재난관리부 장관을 리야드에서 만나 위험 예방, 첨단 기술 활용, 훈련 프로그램, 전문가 교류 방안을 논의했다.",
- tg:["외교","시리아","재난관리"],u:"https://saudigazette.com.sa/article/660366/saudi-arabia/saudi-arabia-syria-discuss-exchange-of-expertise-in-disaster-management"},
-{id:114,p:7,r:"주요경제",t:"Saudi life expectancy rises to 79.9 as clinical trials grow over 50%",k:"사우디 기대수명 79.9세로 상승…임상시험 50% 이상 증가",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia's life expectancy increased from 74 years in 2016 to 79.9 years by end of 2025 under the Health Sector Transformation Program. Clinical trials grew by 51.4% between 2023 and 2025.",
- mk:"사우디아라비아의 기대수명이 보건부문 변혁 프로그램에 따라 2016년 74세에서 2025년 말 79.9세로 상승했다. 임상시험은 2023~2025년 51.4% 증가했다.",
- tg:["보건","임상시험","비전2030"],u:"https://saudigazette.com.sa/article/660330"},
-{id:115,p:8,r:"속보",t:"Iranian missile hits telecom building in Sharjah, 2 injured",k:"이란 미사일, 샤르자 통신빌딩 타격…2명 부상",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"An Iranian missile struck a telecommunications building in Sharjah, UAE, injuring two people. The strike came amid the broader regional conflict between Iran and the US-Israel coalition.",
- mk:"이란 미사일이 UAE 샤르자의 통신 빌딩을 타격해 2명이 부상했다. 이번 공격은 이란과 미국-이스라엘 연합 간 지역 분쟁 속에 발생했다.",
- tg:["이란","UAE","분쟁"],u:"https://saudigazette.com.sa/article/660326/world/iranian-missile-hits-sharjah-telecom-building-2-injured"},
-{id:116,p:9,r:"속보",t:"Saudi air defenses intercept 11 ballistic missiles over Eastern Province as debris falls near energy sites",k:"사우디 방공망, 동부주 상공서 탄도미사일 11기 요격…에너지 시설 인근 잔해 낙하",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi air defenses intercepted and destroyed 11 ballistic missiles fired at the Eastern Province early Tuesday, according to the Ministry of Defense. Debris fell in the vicinity of energy facilities, with damage assessment underway.",
- mk:"사우디 국방부에 따르면 화요일 새벽 동부주를 향해 발사된 탄도미사일 11기를 사우디 방공망이 요격·파괴했다. 잔해가 에너지 시설 인근에 떨어졌으며 피해 평가가 진행 중이다.",
- tg:["방공","동부주","에너지"],u:"https://saudigazette.com.sa/article/660308/saudi-arabia/saudi-air-defenses-intercept-11-ballistic-missiles-in-eastern-province"},
-{id:117,p:4,r:"",t:"Jeddah Red Crescent rescues expatriate from cardiac arrest in life-saving rapid response",k:"제다 적신월사, 심정지 외국인 인명구조 성공",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Jeddah Red Crescent paramedics successfully resuscitated an expatriate suffering cardiac arrest, demonstrating the rapid response capability of Saudi emergency services.",
- mk:"제다 적신월사 응급요원들이 심정지를 일으킨 외국인을 성공적으로 소생시켜 사우디 응급의료의 신속 대응 역량을 입증했다.",
- tg:["응급","적신월","제다"],u:"https://saudigazette.com.sa/article/660303/saudi-arabia/jeddah-red-crescent-rescues-expatriate-from-cardiac-arrest-in-life-saving-rapid-response"},
-{id:118,p:5,r:"",t:"Civil Defense urges caution amid forecast of heavy rainfall across most regions of Saudi Arabia",k:"사우디 민방위, 폭우 예보에 주의 당부",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Civil Defense issued safety advisories as the National Center of Meteorology forecast heavy rainfall across most regions of the Kingdom in the coming days, urging residents to avoid flood-prone areas.",
- mk:"국가기상센터가 향후 며칠간 사우디 대부분 지역에 폭우를 예보함에 따라 민방위는 안전 권고를 발령하고 주민들에게 침수 위험 지역 회피를 촉구했다.",
- tg:["기상","민방위","안전"],u:"https://saudigazette.com.sa/article/660302/saudi-arabia/civil-defense-urges-caution-amid-forecast-of-heavy-rainfall-across-most-regions-of-saudi-arabia"},
-{id:119,p:4,r:"",t:"Consumers can approach neutral third party to inspect water meters",k:"소비자, 중립 제3자에 수도계량기 검사 의뢰 가능",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Water Regulator announced consumers can request neutral third-party inspection of water meters to resolve billing disputes, enhancing consumer protection in the utility sector.",
- mk:"사우디 물 규제기관은 소비자가 수도 요금 분쟁 해결을 위해 중립적인 제3자 기관에 계량기 검사를 요청할 수 있다고 발표하며 공공서비스 부문 소비자 보호를 강화했다.",
- tg:["수도","소비자","규제"],u:"https://saudigazette.com.sa/article/660297/saudi-arabia/consumers-can-approach-neutral-third-party-to-inspect-water-meters"},
-{id:120,p:7,r:"정책발표",t:"Saudi Arabia to localize 69 administrative support jobs",k:"사우디, 행정지원직 69개 직종 사우디화",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Ministry of Human Resources announced Saudization of 69 administrative support jobs in the private sector, effective from April 5. New mechanism for Saudization calculation will take effect April 15, 2026.",
- mk:"사우디 인적자원부는 4월 5일부터 민간 부문 행정지원직 69개를 사우디화 대상에 포함한다고 발표했다. 새로운 사우디화 산정 메커니즘은 2026년 4월 15일부터 적용된다.",
- tg:["사우디화","고용","정책"],u:"https://saudigazette.com.sa/article/660292"},
-{id:121,p:8,r:"심층분석",t:"Saudi Arabia intercepts 799 drones, 95 missiles since March 3",k:"사우디, 3월 3일 이후 드론 799기·미사일 95기 요격",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia has intercepted 799 drones and 95 missiles since March 3, 2026, including a cruise missile, according to military officials. The figures highlight the scale of attacks during the Iran conflict.",
- mk:"사우디는 2026년 3월 3일 이후 순항미사일 1기를 포함해 드론 799기와 미사일 95기를 요격했다고 군 당국이 밝혔다. 이 수치는 이란 분쟁 중 공격 규모를 보여준다.",
- tg:["방공","드론","미사일"],u:"https://saudigazette.com.sa/article/660265/saudi-arabia/saudi-arabia-intercepts-cruise-missile-799-drones-95-missiles-detected-since-march-3"},
-{id:122,p:6,r:"",t:"Saudi Arabia condemns RSF attack on Sudan hospital, calls for immediate halt",k:"사우디, 수단 RSF 병원 공격 규탄…즉각 중단 촉구",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Foreign Ministry strongly condemned the Rapid Support Forces (RSF) attack on a hospital in Sudan, calling for an immediate halt to attacks on civilian and medical facilities.",
- mk:"사우디 외교부는 RSF의 수단 병원 공격을 강력히 규탄하고 민간·의료시설에 대한 공격 즉각 중단을 촉구했다.",
- tg:["외교","수단","RSF"],u:"https://saudigazette.com.sa/article/660250"},
-{id:123,p:9,r:"헤드라인",t:"Crown Prince meets Italy PM in Jeddah, discusses regional developments",k:"왕세자, 제다서 이탈리아 총리 회담…지역 정세 논의",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Crown Prince Mohammed bin Salman met Italian PM Giorgia Meloni in Jeddah, discussing the latest regional developments and bilateral cooperation amid the ongoing Iran conflict.",
- mk:"무함마드 빈 살만 왕세자가 제다에서 조르자 멜로니 이탈리아 총리와 회담을 갖고 이란 분쟁 속 지역 정세와 양국 협력을 논의했다.",
- tg:["외교","이탈리아","정상회담"],u:"https://saudigazette.com.sa/article/660236"},
-{id:124,p:7,r:"",t:"Crown Prince meets FIFA President in Jeddah",k:"왕세자, 제다서 FIFA 회장 면담",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Crown Prince Mohammed bin Salman received FIFA President Gianni Infantino in Jeddah, discussing 2034 World Cup preparations and global football cooperation.",
- mk:"무함마드 빈 살만 왕세자가 제다에서 잔니 인판티노 FIFA 회장을 접견하고 2034 월드컵 준비와 국제 축구 협력을 논의했다.",
- tg:["스포츠","FIFA","월드컵"],u:"https://saudigazette.com.sa/article/660235"},
-{id:125,p:9,r:"헤드라인",t:"Putin reaffirms Russia's support for Saudi Arabia in call with Crown Prince",k:"푸틴, 왕세자와 통화서 사우디 지지 재확인",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Russian President Vladimir Putin reaffirmed Russia's support for Saudi Arabia in a phone call with Crown Prince Mohammed bin Salman, as Saudi Arabia faces continued attacks from Iran.",
- mk:"블라디미르 푸틴 러시아 대통령이 무함마드 빈 살만 왕세자와의 통화에서 이란의 지속적인 공격에 직면한 사우디아라비아에 대한 러시아의 지지를 재확인했다.",
- tg:["외교","러시아","정상통화"],u:"https://saudigazette.com.sa/article/660215"},
-{id:126,p:9,r:"헤드라인",t:"Saudi FM discusses regional developments with Chinese, Japanese counterparts in phone call",k:"사우디 외무장관, 중국·일본 외무장관과 통화로 지역 정세 논의",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Foreign Minister Prince Faisal bin Farhan discussed the latest regional developments with his Chinese and Japanese counterparts in separate phone calls, covering the Iran conflict and Middle East stability.",
- mk:"파이살 빈 파르한 사우디 외무장관이 중국, 일본 외무장관과 각각 통화를 갖고 이란 분쟁과 중동 안정을 포함한 최근 지역 정세를 논의했다.",
- tg:["외교","중국","일본"],u:"https://saudigazette.com.sa/article/660210"},
-{id:127,p:6,r:"",t:"Israeli military claims killing 40 Hezbollah fighters in last 24 hours",k:"이스라엘군, 24시간 내 헤즈볼라 전투원 40명 사살 주장",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Israeli military claimed to have killed 40 Hezbollah fighters in southern Lebanon in the last 24 hours, as cross-border tensions continue despite the Iran ceasefire.",
- mk:"이스라엘군은 이란 휴전에도 국경 간 긴장이 지속되는 가운데 지난 24시간 동안 레바논 남부에서 헤즈볼라 전투원 40명을 사살했다고 주장했다.",
- tg:["이스라엘","헤즈볼라","레바논"],u:"https://saudigazette.com.sa/article/660208"},
-{id:128,p:7,r:"속보",t:"Iran vows 'crushing' attacks on US after Trump threats",k:"이란, 트럼프 위협에 대미 '압도적' 공격 예고",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Iran threatened &quot;crushing&quot; attacks against US forces after President Trump escalated his threats against Tehran. The exchange comes despite the recently announced two-week ceasefire.",
- mk:"이란은 트럼프 대통령이 이란에 대한 위협을 고조시키자 미군에 대한 '압도적' 공격을 위협했다. 이러한 응수는 최근 발표된 2주 휴전에도 불구하고 나왔다.",
- tg:["이란","미국","분쟁"],u:"https://saudigazette.com.sa/article/660207"},
-{id:129,p:4,r:"",t:"Turaif sees 15.2mm of rain as NCM monitors Kingdom-wide activity",k:"투라이프에 15.2mm 강우…NCM, 전국 기상 모니터링",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"The northern town of Turaif recorded 15.2mm of rainfall as the National Center of Meteorology monitored widespread weather activity across Saudi Arabia.",
- mk:"북부 투라이프에서 15.2mm의 강우량이 기록됐으며, 국가기상센터는 사우디 전역의 광범위한 기상 활동을 모니터링했다.",
- tg:["기상","강우","북부"],u:"https://saudigazette.com.sa/article/660205/saudi-arabia/turaif-sees-152mm-of-rain-as-ncm-monitors-kingdom-wide-activity"},
-{id:130,p:3,r:"",t:"Saudi skies glow with Shawwal's 'butterfly moon'",k:"사우디 하늘에 샤왈의 '나비 달' 빛나다",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Skywatchers across Saudi Arabia enjoyed the rare 'butterfly moon' phenomenon during the Islamic month of Shawwal, captured by photographers nationwide.",
- mk:"사우디 전역의 천체 관측자들은 이슬람력 샤왈월 동안 희귀한 '나비 달' 현상을 즐겼으며, 전국 사진작가들이 이를 포착했다.",
- tg:["천체","문화","샤왈"],u:"https://saudigazette.com.sa/article/660201"},
-{id:131,p:6,r:"",t:"Powerful earthquake damages buildings in Indonesia, triggers tsunami waves",k:"인도네시아 강진, 건물 피해·쓰나미 발생",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"A powerful earthquake struck Indonesia, damaging buildings and triggering tsunami waves. Authorities issued warnings to coastal communities.",
- mk:"인도네시아에 강진이 발생해 건물이 피해를 입고 쓰나미가 발생했다. 당국은 해안 지역사회에 경보를 발령했다.",
- tg:["지진","인도네시아","자연재해"],u:"https://saudigazette.com.sa/article/660195"},
-{id:132,p:8,r:"정책발표",t:"Makkah airport and metro plans underway: Official",k:"메카 공항·메트로 건설 계획 진행 중: 당국",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Plans to build an airport and metro system in Makkah are underway, as the holy city moves ahead with major transport and infrastructure upgrades to handle pilgrim flows.",
- mk:"성지 메카는 순례객 수송을 위한 주요 교통·인프라 업그레이드의 일환으로 공항과 메트로 시스템 건설 계획을 진행 중이다.",
- tg:["인프라","메카","교통"],u:"https://saudigazette.com.sa/article/660176"},
-{id:133,p:7,r:"주요경제",t:"Air fares go up with higher fuel costs, tight capacity, IATA says",k:"IATA: 연료비 상승·공급 부족으로 항공료 인상",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Air fares are rising due to higher fuel costs and tight capacity caused by the Iran conflict, IATA reported. Airlines are passing through cost increases to consumers worldwide.",
- mk:"IATA는 이란 분쟁으로 인한 연료비 상승과 공급 부족으로 항공료가 인상되고 있다고 보고했다. 항공사들은 비용 증가를 전 세계 소비자에게 전가하고 있다.",
- tg:["항공","연료비","IATA"],u:"https://saudigazette.com.sa/article/660150"},
-{id:134,p:5,r:"",t:"Riyadh University of Arts to open admission in May and classes in September",k:"리야드 예술대학, 5월 입학 시작·9월 개강",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Minister of Culture announced Riyadh University of Arts will open admission in May with classes starting in September. The university will offer 8 academic programs across 4 colleges: Music, Film, Theater, and Cultural Management.",
- mk:"사우디 문화부 장관은 리야드 예술대학이 5월 입학을 시작해 9월 개강한다고 발표했다. 음악·영화·연극·문화경영 4개 단과대학에서 8개 학위 과정을 운영한다.",
- tg:["교육","문화","대학"],u:"https://saudigazette.com.sa/article/660134"},
-{id:135,p:6,r:"",t:"Heritage Commission completes coding of 4,000 architectural heritage sites",k:"문화유산위원회, 건축 유산 4000곳 코딩 완료",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Heritage Commission completed coding of 4,000 architectural heritage sites across the Kingdom, advancing the documentation and protection of national cultural treasures.",
- mk:"사우디 문화유산위원회는 왕국 전역의 4000개 건축 유산 사이트에 대한 코딩을 완료해 국가 문화재의 문서화와 보호를 진전시켰다.",
- tg:["문화유산","건축","보존"],u:"https://saudigazette.com.sa/article/660133/saudi-arabia/heritage-commission-completes-coding-of-4000-architectural-heritage-sites"},
-{id:136,p:8,r:"헤드라인",t:"Saudi Arabia, Canada agree to deepen partnership",k:"사우디-캐나다, 파트너십 심화 합의",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Foreign Minister Prince Faisal bin Farhan held wide-ranging talks with Canadian Foreign Minister Anita Anand in Riyadh, agreeing on the importance of deepening bilateral relations and enhancing comprehensive partnership between the two countries.",
- mk:"파이살 빈 파르한 사우디 외무장관이 리야드에서 아니타 아난드 캐나다 외무장관과 폭넓은 회담을 갖고 양국 관계 심화와 포괄적 파트너십 강화의 중요성에 합의했다.",
- tg:["외교","캐나다","파트너십"],u:"https://saudigazette.com.sa/article/660132"},
-{id:137,p:4,r:"",t:"NCM forecasts widespread rainfall across Kingdom until next Thursday",k:"NCM, 다음 주 목요일까지 전국적 강우 예보",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"The National Center of Meteorology forecast widespread rainfall across most regions of Saudi Arabia continuing until next Thursday, with potential thunderstorms in some areas.",
- mk:"국가기상센터는 일부 지역의 뇌우 가능성과 함께 사우디 대부분 지역에 다음 주 목요일까지 광범위한 강우가 지속될 것으로 예보했다.",
- tg:["기상","강우","예보"],u:"https://saudigazette.com.sa/article/660110"},
-{id:138,p:4,r:"",t:"Passports Directorate designates number 992 for inquiries regarding expired visas",k:"여권청, 비자 만료 문의 전용번호 992 지정",s:"Saudi Gazette",c:"saudi",d:"2026-04-08",
- m:"Saudi Passports Directorate (Jawazat) designated phone number 992 as the dedicated line for inquiries regarding expired visas, streamlining customer service for residents and visitors.",
- mk:"사우디 여권청(자와자트)은 만료된 비자 관련 문의를 위한 전용 전화번호로 992를 지정해 거주자와 방문객 대상 고객 서비스를 간소화했다.",
- tg:["이민","비자","행정"],u:"https://saudigazette.com.sa/article/660070/saudi-arabia/passports-directorate-designates-number-992-for-inquiries-regarding-expired-visas"},
-{id:139,p:7,r:"",t:"AlUla shortlisted for 'City of Film' at 2026 Global Production Awards",k:"알울라, 2026 글로벌 프로덕션 어워드 '영화도시' 후보 선정",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"AlUla has been shortlisted for the 'City of Film' category at the 2026 Global Production Awards, recognizing its growing role as a destination for international film productions and its rich cultural heritage.",
- mk:"알울라가 2026 글로벌 프로덕션 어워드 '영화도시' 부문 후보에 올라 국제 영화 제작의 목적지로서 성장하는 역할과 풍부한 문화유산을 인정받았다.",
- tg:["관광","영화","문화"],u:"https://www.arabnews.com/node/2639283/saudi-arabia"},
-{id:140,p:4,r:"",t:"Beautyworld Riyadh postponed until 2027",k:"뷰티월드 리야드 박람회, 2027년으로 연기",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Organizers announced Beautyworld Riyadh has been postponed until 2027 due to ongoing regional security concerns from the Iran conflict, joining a growing list of regional events being rescheduled.",
- mk:"주최측은 이란 분쟁으로 인한 지속적인 지역 안보 우려로 뷰티월드 리야드 박람회를 2027년으로 연기한다고 발표했다. 일정이 재조정되는 지역 행사 명단에 추가됐다.",
- tg:["행사","연기","분쟁영향"],u:"https://www.arabnews.com/node/2639203/lifestyle"},
-{id:141,p:9,r:"헤드라인",t:"Israel backs Trump's two-week pause on Iran strikes, says Lebanon excluded",k:"이스라엘, 트럼프 이란 2주 휴전 지지…레바논은 제외",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Israel announced support for President Trump's two-week pause on Iran strikes but specified that Lebanon is excluded from the truce, vowing to continue operations against Hezbollah.",
- mk:"이스라엘은 트럼프 대통령의 이란 공격 2주 중단을 지지한다고 밝혔으나 레바논은 휴전에서 제외된다고 명시하며 헤즈볼라에 대한 작전을 계속할 것이라고 다짐했다.",
- tg:["이스라엘","휴전","레바논"],u:"https://www.arabnews.com/node/2639170/middle-east"},
-{id:142,p:10,r:"헤드라인",t:"Saudi FM discusses regional situation with Pakistani, Bahraini counterparts",k:"사우디 외무장관, 파키스탄·바레인 외무장관과 지역 정세 논의",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Saudi Foreign Minister Prince Faisal bin Farhan discussed regional developments with Pakistan's Deputy PM/FM Ishaq Dar and Bahrain's FM Abdullatif bin Rashid Al-Zayani in separate phone calls early Wednesday, focusing on security implications of the Iran conflict.",
- mk:"파이살 빈 파르한 사우디 외무장관이 이샤크 다르 파키스탄 부총리 겸 외무장관, 압둘라티프 빈 라시드 알자야니 바레인 외무장관과 각각 통화를 갖고 이란 분쟁의 안보 영향을 중심으로 지역 정세를 논의했다.",
- tg:["외교","파키스탄","바레인"],u:"https://www.arabnews.com/node/2639158/saudi-arabia"},
-{id:143,p:9,r:"속보",t:"Gulf states knock down Iran barrage, 2 killed in Iraq",k:"걸프 국가들, 이란 미사일 공세 격추…이라크서 2명 사망",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Gulf countries shot down Iranian missiles and drones early Wednesday. Saudi Arabia's defense ministry announced interception of five ballistic missiles toward the Eastern Region. Two people were killed in Iraq when missile debris struck.",
- mk:"걸프 국가들이 수요일 새벽 이란 미사일과 드론을 격추했다. 사우디 국방부는 동부지역을 향한 탄도미사일 5기 요격을 발표했다. 이라크에서는 미사일 잔해로 2명이 사망했다.",
- tg:["걸프","방공","이라크"],u:"https://www.arabnews.com/node/2639143/middle-east"},
-{id:144,p:10,r:"헤드라인",t:"US, Israel and Iran agree to 2-week ceasefire as Trump seizes diplomatic offramp",k:"미·이·이란, 2주 휴전 합의…트럼프, 외교적 출구 활용",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"US President Donald Trump pulled back on threats to launch devastating strikes on Iran, agreeing to a two-week ceasefire subject to Tehran reopening the Strait of Hormuz. The deal was brokered with Pakistani mediation.",
- mk:"트럼프 대통령은 이란에 대한 파괴적인 공격 위협을 철회하고 테헤란이 호르무즈 해협 재개방을 조건으로 2주 휴전에 합의했다. 이 합의는 파키스탄의 중재로 성사됐다.",
- tg:["휴전","미국","이란"],u:"https://www.arabnews.com/node/2639123/middle-east"},
-{id:145,p:10,r:"헤드라인",t:"Saudi crown prince, Pakistan PM discuss regional tensions in phone call",k:"사우디 왕세자, 파키스탄 총리와 통화로 지역 긴장 논의",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Crown Prince Mohammed bin Salman and Pakistan PM discussed regional tensions in a phone call, with Pakistan playing a key mediation role in the US-Iran ceasefire negotiations.",
- mk:"무함마드 빈 살만 왕세자가 파키스탄 총리와 통화를 갖고 지역 긴장을 논의했다. 파키스탄은 미국-이란 휴전 협상에서 핵심 중재 역할을 하고 있다.",
- tg:["외교","파키스탄","중재"],u:"https://www.arabnews.com/node/2639120/saudi-arabia"},
-{id:146,p:8,r:"주요경제",t:"Saudi commercial registrations reach 1.89m as 71k new businesses launch in Q1",k:"사우디 상업등록 189만 건 돌파…1분기 신규 7만1천 건",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Commercial registrations in Saudi Arabia reached approximately 1.89 million by end of Q1 2026, with 71,000 new enrollments. Women accounted for 47% of newly issued registrations. Riyadh, Makkah, and Eastern Province led regional activity.",
- mk:"사우디 상업등록은 2026년 1분기 말 약 189만 건에 이르렀고 신규 등록 7만 1000건이 추가됐다. 신규 발급 중 여성 비율은 47%였다. 리야드, 메카, 동부주가 지역 활동을 주도했다.",
- tg:["경제","창업","여성"],u:"https://www.arabnews.com/node/2639107/business-economy"},
-{id:147,p:6,r:"주요경제",t:"Closing Bell: Saudi equities close lower on Tuesday",k:"사우디 증시 화요일 하락 마감",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Saudi equity markets closed lower on Tuesday amid continued geopolitical tensions from the Iran conflict, with TASI showing increased volatility.",
- mk:"사우디 증시는 이란 분쟁으로 인한 지정학적 긴장 지속 속에 화요일 하락 마감했으며 TASI 지수는 변동성이 확대됐다.",
- tg:["증시","TASI","금융"],u:"https://www.arabnews.com/node/2639102/business-economy"},
-{id:148,p:8,r:"",t:"Saudi Arabia condemns Israeli Minister's Al Aqsa visit, urges international action",k:"사우디, 이스라엘 장관 알아크사 방문 규탄…국제사회 행동 촉구",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Saudi Foreign Ministry strongly condemned the storming of Al Aqsa Mosque&apos;s courtyards by an Israeli minister, calling it a &quot;provocative&quot; act under Israeli forces&apos; protection and urging international community action.",
- mk:"사우디 외교부는 이스라엘 장관의 알아크사 모스크 안뜰 진입을 강력 규탄하며 이스라엘군 보호 하의 '도발적' 행위로 규정하고 국제사회의 행동을 촉구했다.",
- tg:["외교","알아크사","이스라엘"],u:"https://www.arabnews.com/node/2639080/saudi-arabia"},
-{id:149,p:9,r:"심층분석",t:"How does Saudi Arabia maintain price stability despite the war?",k:"사우디는 전쟁 속에서도 어떻게 물가 안정을 유지하나",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"In-depth analysis of how retail activity in Saudi Arabia remains steady, with the Kingdom avoiding sharp price increases and supply disruptions seen in other countries during the Iran war. Strategic reserves, diversified supply chains, and regulatory measures explained.",
- mk:"이란 전쟁 중 사우디아라비아의 소매 활동이 어떻게 안정을 유지하고 있는지 심층 분석. 다른 국가에서 나타난 급격한 물가 상승과 공급 차질을 어떻게 회피했는지 전략 비축, 다변화된 공급망, 규제 조치를 설명한다.",
- tg:["경제","물가","공급망"],u:"https://www.arabnews.com/node/2639064/business-economy"},
-{id:150,p:8,r:"심층분석",t:"Saudi real estate sector offering $6.3bn opportunities to global investors: Knight Frank",k:"나이트 프랭크: 사우디 부동산 부문, 글로벌 투자자에 63억 달러 기회",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia is poised to draw $6.3 billion in private international capital into its property sector once geopolitical conflict stabilizes, driven by population growth, business expansion, inward migration, and rising consumer confidence, according to Knight Frank.",
- mk:"나이트 프랭크에 따르면 사우디는 지정학적 분쟁 안정화 시 인구 증가, 비즈니스 확장, 이민 유입, 소비자 신뢰 상승 등에 힘입어 부동산 부문에 63억 달러의 민간 국제 자본을 유치할 전망이다.",
- tg:["부동산","투자","경제"],u:"https://www.arabnews.com/node/2639055/business-economy"},
-{id:151,p:9,r:"심층분석",t:"Saudi Arabia succeeded in redirecting its oil exports: IMF",k:"IMF: 사우디, 석유 수출 재방향 조정 성공",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"IMF reported that Saudi Arabia has successfully redirected its oil exports amid Strait of Hormuz disruptions, leveraging the East-West pipeline and alternative routes to maintain export flows during the Iran conflict.",
- mk:"IMF는 사우디가 호르무즈 해협 차질 속에서 동서 파이프라인과 대체 경로를 활용해 이란 분쟁 중에도 수출 흐름을 유지하며 석유 수출 방향을 성공적으로 재조정했다고 보고했다.",
- tg:["석유","IMF","파이프라인"],u:"https://www.arabnews.com/node/2639020/business-economy"},
-{id:152,p:5,r:"",t:"Ronaldo faces defining run-in as Al-Nassr eye Saudi Pro League title",k:"호날두, 알나스르 우승 도전 '결정적 경기' 직면",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Cristiano Ronaldo and Al-Nassr face a defining run-in to the Saudi Pro League title race, with critical matches ahead in the championship pursuit.",
- mk:"크리스티아누 호날두와 알나스르가 사우디 프로리그 우승 경쟁에서 결정적인 경기들을 앞두고 있다.",
- tg:["스포츠","축구","호날두"],u:"https://www.arabnews.com/node/2638971/sport"},
-{id:153,p:5,r:"",t:"Yanbu Flower Festival attracts tourists",k:"얀부 꽃 축제, 관광객 유치",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"The Yanbu Flower Festival has attracted tourists from across Saudi Arabia and beyond, showcasing diverse floral displays and supporting local tourism in the western region.",
- mk:"얀부 꽃 축제가 사우디 전역과 해외에서 관광객을 유치하며 다양한 꽃 전시를 선보이고 서부 지역의 관광 산업을 지원하고 있다.",
- tg:["관광","문화","지역"],u:"https://www.arabnews.com/node/2638881/saudi-arabia"},
-{id:154,p:9,r:"헤드라인",t:"Saudi Arabia launches locally developed Shams satellite",k:"사우디, 자국 개발 '샴스' 위성 발사",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Saudi Space Agency announced successful launch and initial communication with the Saudi Shams satellite, deployed aboard the Space Launch System as part of the Artemis II mission. Saudi Arabia becomes the first Arab nation to participate in a space mission under the Artemis program.",
- mk:"사우디 우주청은 아르테미스 II 미션의 일환으로 우주 발사 시스템에 탑재된 사우디 샴스 위성의 성공적 발사와 초기 교신을 발표했다. 사우디아라비아는 아르테미스 프로그램 우주 미션에 참여한 최초의 아랍 국가가 됐다.",
- tg:["우주","과학기술","아르테미스"],u:"https://www.arabnews.com/node/2638870/saudi-arabia"},
-{id:155,p:6,r:"",t:"AI and the media: Experts to discuss challenges, opportunities in Riyadh",k:"AI와 미디어: 리야드서 전문가들 도전·기회 논의",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"A conference in Riyadh on artificial intelligence in the media industry, organized by the Saudi Association for Media and Communication, will bring together experts to discuss AI's impact on journalism and content creation.",
- mk:"사우디 미디어·커뮤니케이션 협회가 주최하는 미디어 산업에서의 인공지능에 관한 컨퍼런스가 리야드에서 열려 전문가들이 AI가 저널리즘과 콘텐츠 제작에 미치는 영향을 논의한다.",
- tg:["AI","미디어","컨퍼런스"],u:"https://www.arabnews.com/node/2638869/saudi-arabia"},
-{id:156,p:5,r:"",t:"Thousands begin phase 2 of science, mathematics Olympiad",k:"수천 명, 과학·수학 올림피아드 2단계 시작",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Thousands of Saudi students began phase 2 of the national science and mathematics olympiad, advancing the Kingdom's STEM education priorities under Vision 2030.",
- mk:"수천 명의 사우디 학생들이 국가 과학·수학 올림피아드 2단계를 시작해 비전 2030 하의 STEM 교육 우선순위를 진전시켰다.",
- tg:["교육","STEM","올림피아드"],u:"https://www.arabnews.com/node/2638751/saudi-arabia"},
-{id:157,p:8,r:"심층분석",t:"Preparing for the post-Iran war era",k:"포스트 이란 전쟁 시대 대비",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Opinion analysis on how Gulf states and the international community should prepare for the post-Iran war era, examining reconstruction, regional security frameworks, and diplomatic realignment.",
- mk:"걸프 국가들과 국제사회가 포스트 이란 전쟁 시대를 어떻게 대비해야 하는지에 관한 의견 분석. 재건, 지역 안보 프레임워크, 외교적 재편을 검토한다.",
- tg:["분석","전후","외교"],u:"https://www.arabnews.com/node/2638540/amp"},
-{id:158,p:7,r:"주요경제",t:"TotalEnergies and Masdar form $2.2bn Asian renewable energy JV",k:"토탈에너지·마스다르, 22억 달러 아시아 재생에너지 합작사 설립",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"TotalEnergies and UAE's Masdar formed a $2.2 billion joint venture targeting renewable energy projects across Asia, marking a major Gulf push into green energy investment despite ongoing oil market volatility.",
- mk:"토탈에너지와 UAE 마스다르가 아시아 전역의 재생에너지 프로젝트를 겨냥한 22억 달러 규모 합작사를 설립했다. 지속적인 석유 시장 변동성에도 걸프 지역의 녹색 에너지 투자 확대를 상징한다.",
- tg:["재생에너지","투자","마스다르"],u:"https://www.arabnews.com/node/2638528/business-economy"},
-{id:159,p:6,r:"주요경제",t:"Closing Bell: Saudi main market gains 26 points to close at 11,275",k:"사우디 본시장 26포인트 상승 11,275로 마감",s:"Arab News",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia's benchmark TASI index closed up 26 points at 11,275, signaling cautious optimism amid Iran ceasefire developments. Trading volume remained moderate.",
- mk:"사우디 벤치마크 TASI 지수는 26포인트 상승한 11,275로 마감하며 이란 휴전 진전 속 신중한 낙관론을 시사했다. 거래량은 중간 수준을 유지했다.",
- tg:["증시","TASI","금융"],u:"https://www.arabnews.com/node/2638439/business-economy"},
-{id:160,p:8,r:"정책발표",t:"HRH the Crown Prince Chairs Cabinet Session",k:"왕세자, 내각 회의 주재",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Crown Prince Mohammed bin Salman chaired the weekly Cabinet session, reviewing latest regional developments, the Iran ceasefire status, economic measures, and government initiatives. Cabinet approved several decisions on infrastructure and social development.",
- mk:"무함마드 빈 살만 왕세자는 주례 내각 회의를 주재해 최근 지역 정세, 이란 휴전 현황, 경제 조치, 정부 이니셔티브를 검토했다. 내각은 인프라 및 사회 개발에 관한 여러 결정을 승인했다.",
- tg:["내각","왕실","정책"],u:"https://www.spa.gov.sa/en/N2527847"},
-{id:161,p:7,r:"",t:"Saudi Arabia Advances Global Environmental Leadership with IUCN Green List Milestone",k:"사우디, IUCN 그린 리스트 달성으로 글로벌 환경 리더십 진전",s:"SPA",c:"saudi",d:"2026-04-08",
- m:"Saudi Arabia achieved a milestone in global environmental leadership with the IUCN Green List recognition, advancing its commitment to protected area management and biodiversity conservation under Vision 2030 environmental goals.",
- mk:"사우디아라비아는 IUCN 그린 리스트 인증을 달성하며 비전 2030 환경 목표 하의 보호구역 관리 및 생물다양성 보존에 대한 약속을 진전시켜 글로벌 환경 리더십에서 이정표를 세웠다.",
- tg:["환경","보호구역","IUCN"],u:"https://spa.gov.sa/en/N2553904"}
+const thinktanks = [
+  {
+    id: 1,
+    name: "킹 파이살 연구·이슬람학 센터",
+    nameEn: "King Faisal Center for Research and Islamic Studies (KFCRIS)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 1983,
+    focus: ["이슬람 연구", "인문학", "사회과학", "문화 교류"],
+    category: ["geo", "culture"],
+    orientation: "사우디 왕실(킹 파이살 재단) 산하. <strong>이슬람 문명·문화 연구</strong> 중심이나, 지정학·외교 분석도 수행. 비교적 학술적·중립적 성향으로, 국제 학자들과의 교류 활발.",
+    website: "https://www.kfcris.com/en",
+    recentReports: [
+      { title: "Dirasat 73: Sinology as an Islamic Science", date: "2025년 1월", url: "https://kfcris.com/en/view/22" },
+      { title: "Dirasat 72: Histories of Sinophone Islam in Macau", date: "2024년 10월", url: "https://kfcris.com/en/view/22" }
+    ],
+    detail: "킹 파이살 재단 소속으로, 이슬람 연구와 아랍 문화에 대한 지식 플랫폼 역할. 출판, 도서관, 아카이브, 박물관 기능을 겸비. 국내외 연구자들을 연결하며 인문·사회과학 원천 연구를 수행."
+  },
+  {
+    id: 2,
+    name: "킹 압둘라 석유연구센터",
+    nameEn: "King Abdullah Petroleum Studies and Research Center (KAPSARC)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2010,
+    focus: ["에너지 정책", "석유·가스", "재생에너지", "기후변화", "경제 다각화"],
+    category: ["energy"],
+    orientation: "사우디 정부 산하 에너지 전문 싱크탱크. <strong>친정부 성향</strong>이나 데이터 기반 연구로 글로벌 신뢰도 확보. 비전 2030과 연계한 에너지 전환, 탄소 순환경제 연구에 집중.",
+    website: "https://www.kapsarc.org",
+    recentReports: [
+      { title: "GCC 국가 간 전력 교역 잠재력 분석 (연 10억 달러 이상 절감 가능)", date: "2025년", url: "https://www.kapsarc.org/our-offerings/publications/charged-possibilities-exploring-the-potential-of-regional-electricity-trade/" },
+      { title: "사우디 건물 에너지 효율성의 경제학", date: "2025년", url: "https://www.kapsarc.org/our-offerings/publications/" },
+      { title: "직접공기포집(DAC) 비용 분석: 톤당 $285~$826", date: "2025년", url: "https://www.kapsarc.org/our-offerings/publications/" },
+      { title: "사우디 석유화학 부문 탄소순환경제 CO2 활용 잠재력", date: "2025년", url: "https://www.kapsarc.org/our-offerings/publications/circular-carbon-economy-in-the-petrochemical-sector-in-saudi-arabia-a-review-of-co2-utilization-potential-pathways/" }
+    ],
+    detail: "KAPSARC는 사우디 에너지 부문 발전과 글로벌 정책에 증거 기반 자문을 제공하는 것이 미션. GDP 재산정(2023년 비석유 비중 53.2%로 상향) 등 경제 구조 전환 분석도 수행. 자하 하디드 설계 건물로도 유명."
+  },
+  {
+    id: 3,
+    name: "라사나 국제이란연구소",
+    nameEn: "Rasanah: International Institute for Iranian Studies",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2017,
+    focus: ["이란 연구", "지정학", "안보", "사우디-이란 관계"],
+    category: ["geo"],
+    orientation: "<strong>사우디 정부 친화적</strong>, 이란 전문 분석 기관. 이란의 내정·외교·군사 동향을 집중 모니터링하며, 사우디 외교 정책 수립에 직간접 기여. 월간·연간 전략보고서 발간.",
+    website: "https://rasanah-iiis.org/english/",
+    recentReports: [
+      { title: "2025 연간전략보고서: 'Alliances of Necessity and Peace Through Strength' (284p)", date: "2026년 초", url: "https://rasanah-iiis.org/english/news/new-release-rasanahs-2025-annual-strategic-report/" },
+      { title: "Iran Case File - 2026년 1월호", date: "2026년 1월", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/" },
+      { title: "이란-사우디 갈등 2011 이후 제2판 발간", date: "2025년", url: "https://rasanah-iiis.org/english/news/rasanah-issues-second-edition-of-the-iran-saudi-arabia-conflict-post-2011/" }
+    ],
+    detail: "라사나는 2017년 설립된 이란 전문 연구소로, 글로벌 다이내믹스·지역 다이내믹스·이란 개관·사우디 리뷰 4개 섹션으로 구성된 연간 전략보고서(ASR)를 발간. 월간 이란 케이스파일도 정기 발행."
+  },
+  {
+    id: 4,
+    name: "프린스 사우드 알파이살 외교학연구소",
+    nameEn: "Prince Saud Al-Faisal Institute for Diplomatic Studies",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2003,
+    focus: ["외교학", "국제관계", "외교관 양성"],
+    category: ["geo"],
+    orientation: "사우디 <strong>외교부 직속</strong> 교육·연구 기관. 외교관 양성과 외교 정책 연구를 겸비. 정부 성향이 강하며 사우디 외교 노선을 학술적으로 뒷받침.",
+    website: "#",
+    recentReports: [
+      { title: "외교관 양성 프로그램 및 정책 브리핑 (비공개)", date: "상시", url: "#" }
+    ],
+    detail: "사우디 외교부 산하 연구소로, 외교관 교육과 외교 정책 연구를 담당. 대외 공개 보고서는 제한적이나, 사우디 외교 전략 수립에 핵심적 역할."
+  },
+  {
+    id: 5,
+    name: "킹 압둘아지즈 국민대화센터",
+    nameEn: "King Abdulaziz Center for National Dialogue (KACND)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2003,
+    focus: ["사회 대화", "다문화 공존", "청년 정책", "사회 개혁"],
+    category: ["social"],
+    orientation: "사우디 <strong>사회 개혁 촉진</strong> 기관. 종파 간 대화, 사회 통합, 청년 참여 등 내부 사회 이슈에 집중. 비전 2030의 사회 개방 노선과 연계.",
+    website: "#",
+    recentReports: [
+      { title: "사우디 사회 대화 및 청년 참여 프로그램 보고서", date: "2025년", url: "#" }
+    ],
+    detail: "사우디 내 종교·종파·세대 간 대화를 촉진하고 사회적 결속을 강화하기 위한 기관. 비전 2030의 사회 개방 정책과 밀접하게 연계되어 운영."
+  },
+  {
+    id: 6,
+    name: "에미리츠 전략연구센터",
+    nameEn: "Emirates Center for Strategic Studies and Research (ECSSR)",
+    country: "AE", countryName: "UAE",
+    city: "아부다비",
+    founded: 1994,
+    focus: ["안보", "지정학", "경제", "에너지", "기술"],
+    category: ["geo", "energy"],
+    orientation: "UAE 정부와 밀접한 <strong>국책 싱크탱크</strong>. 셰이크 압둘라 빈 자이드(외교장관)가 이사회 의장. UAE 국가안보 및 걸프 지역 전략 이슈에 대한 분석 제공. 친정부·친체제 성향.",
+    website: "https://www.ecssr.ae/en/",
+    recentReports: [
+      { title: "UAE 국가안보 관련 지역·국제 동향 분석 보고서 (상시 발간)", date: "2025-2026", url: "https://www.ecssr.ae/en/" },
+      { title: "걸프 지역 안보·경제·사회 이슈 정기 분석", date: "상시", url: "https://www.ecssr.ae/en/" }
+    ],
+    detail: "1994년 셰이크 칼리파 빈 자이드 알 나흐얀의 칙령으로 설립. UAE 및 아랍 걸프 지역의 정치·경제·사회적 사안에 대한 학술 연구 수행. 콘퍼런스, 심포지엄, 워크숍 주최 및 원저서·번역서 출판."
+  },
+  {
+    id: 7,
+    name: "안와르 가르가시 외교 아카데미",
+    nameEn: "Anwar Gargash Diplomatic Academy (AGDA)",
+    country: "AE", countryName: "UAE",
+    city: "아부다비",
+    founded: 2014,
+    focus: ["외교학", "국제관계", "인권", "인도적 지원"],
+    category: ["geo"],
+    orientation: "UAE <strong>연방 자율 외교연구·교육기관</strong>. 에미리트 외교관 양성과 UAE 외교 목표 관련 연구 수행. 인덱스·출판물 등 선도적 자료 생산. 두바이 공공정책센터, 인도 싱크탱크 등과 교류.",
+    website: "https://www.agda.ac.ae/",
+    recentReports: [
+      { title: "2025-2026학년 PGD/MAGAD/MAHAD/MILAD 코호트 개시", date: "2025년 9월", url: "https://www.agda.ac.ae/" },
+      { title: "UAE-인도 싱크탱크 교류 방문 (SASS)", date: "2025년 6월", url: "https://english.sass.org.cn/2025/0626/c5489a578785/page.htm" }
+    ],
+    detail: "2014년 설립, UAE 외교관 및 전문가 양성 전문 기관. 석사(MAGAD, MAHAD, MILAD) 및 PGD 프로그램 운영. 지역 싱크탱크로서의 역할도 확대 중이며 UAE 외교정책 목표에 부합하는 연구 수행."
+  },
+  {
+    id: 8,
+    name: "중동국제문제위원회",
+    nameEn: "Middle East Council on Global Affairs (ME Council)",
+    country: "QA", countryName: "카타르",
+    city: "도하",
+    founded: 2021,
+    focus: ["지정학", "외교", "안보", "사회경제", "인권"],
+    category: ["geo"],
+    orientation: "<strong>독립·비영리</strong> 정책연구기관. 카타르 기반이나 비교적 독립적 입장 유지. MENA 지역 고유의 지정학·사회경제 이슈에 대한 정책 관련 연구와 대화 촉진. 게이츠 재단 등으로부터 펀딩 수주.",
+    website: "https://mecouncil.org/",
+    recentReports: [
+      { title: "The Bushehr Reactor: Nuclear Facilities on the Line of Fire", date: "2026년 4월 7일", url: "https://mecouncil.org/" },
+      { title: "Battle for the Straits: Reconfiguring the Strategic Geography of Conflict", date: "2026년 4월 5일", url: "https://mecouncil.org/" },
+      { title: "In Lebanon, a New Wave of Displacement Exposes a Broken System", date: "2026년 4월 8일", url: "https://mecouncil.org/" }
+    ],
+    detail: "2021년 설립된 비교적 신생 싱크탱크이나 빠르게 성장. 상황평가(Situation Assessment) 시리즈를 통해 중동 현안에 대한 신속한 분석을 제공. 이란 핵시설, 해양 전략지리, 레바논 난민 위기 등 최신 이슈를 다룸."
+  },
+  {
+    id: 9,
+    name: "알자지라 연구센터",
+    nameEn: "Al Jazeera Centre for Studies (AJCS)",
+    country: "QA", countryName: "카타르",
+    city: "도하",
+    founded: 2006,
+    focus: ["지정학", "전략", "미디어", "아랍 세계"],
+    category: ["geo"],
+    orientation: "알자지라 미디어 네트워크 산하. <strong>카타르 정부 친화적</strong>이며, 서구 서사(narrative)에 대한 대안적 시각 제시를 표방. 이란 전략외교위원회(SCFR)와의 공동 컨퍼런스 등 독자적 네트워크 구축.",
+    website: "https://studies.aljazeera.net/en",
+    recentReports: [
+      { title: "제17회 알자지라 포럼 (이스라엘 가자 분쟁 관련)", date: "2026년 2월 7일", url: "https://studies.aljazeera.net/en" },
+      { title: "이란 SCFR과 공동 컨퍼런스", date: "2025년 5월", url: "https://studies.aljazeera.net/en" },
+      { title: "HBKU와 공동 서구 서사 해체 컨퍼런스", date: "2025년", url: "https://studies.aljazeera.net/en" }
+    ],
+    detail: "MENA 지역 339개 연구센터 중 6위로 평가(2013). 알자지라 미디어 그룹의 학술 부문으로, 아랍 세계와 주변 지역의 시사 현안에 대한 심층 분석 수행. 팔레스타인 이슈에 대해 적극적 입장."
+  },
+  {
+    id: 10,
+    name: "데라삿 (바레인 전략·국제·에너지연구센터)",
+    nameEn: "Bahrain Center for Strategic, International and Energy Studies (Derasat)",
+    country: "BH", countryName: "바레인",
+    city: "마나마",
+    founded: 2009,
+    focus: ["전략 안보", "국제관계", "에너지", "위기관리", "군사학"],
+    category: ["geo", "energy"],
+    orientation: "<strong>바레인 국왕 직속</strong> 설립. 걸프 지역 안보·에너지·국제 이슈에 대한 전향적 연구 수행. 아틀란틱 카운슬과 MOU 체결 등 서방 싱크탱크와 협력 활발. 친서방·친 GCC 성향.",
+    website: "https://www.derasat.org.bh/",
+    recentReports: [
+      { title: "제7회 데라삿 포럼: 아랍 연구센터 컨소시엄 출범", date: "2025년 12월", url: "https://www.derasat.org.bh/" },
+      { title: "아틀란틱 카운슬 공동 세미나: GCC 재정 건전성과 이란 전쟁 시기 거시경제 안정성", date: "2026년", url: "https://www.derasat.org.bh/en/derasat-participates-in-a-seminar-organized-by-the-atlantic-council-on-the-gcc-fiscal-resilienceand-macroeconomic-stability-in-gcc-countries-during-the-iran-war/" }
+    ],
+    detail: "2009년 하마드 빈 이사 알 칼리파 국왕이 설립. 전략안보·군사·국제관계·위기관리·에너지 분야에 걸친 연구 수행. 2025년 12월 아랍 싱크탱크 네트워크(Arab Think Tanks Network) 공식 출범을 주도."
+  },
+  {
+    id: 11,
+    name: "이스라엘 국가안보연구소",
+    nameEn: "Institute for National Security Studies (INSS)",
+    country: "IL", countryName: "이스라엘",
+    city: "텔아비브",
+    founded: 2006,
+    focus: ["국가안보", "군사전략", "이란", "팔레스타인", "중동 외교"],
+    category: ["geo"],
+    orientation: "텔아비브대학 소속 <strong>독립 학술 연구소</strong>. 이스라엘 안보 정책에 대한 정책 지향 연구 수행. 이란 핵, 아랍-이스라엘 관계 등에 대해 이스라엘 관점의 분석 제공. 중도·실용주의 성향.",
+    website: "https://www.inss.org.il",
+    recentReports: [
+      { title: "사우디의 이스라엘 접근법과 정상화 프로세스 변화 (Insight No. 2103)", date: "2026년 2월 23일", url: "https://www.inss.org.il/publication/saudi-israel-2026/" },
+      { title: "Adkan 저널 Vol. 28, No. 3", date: "2025년 11월", url: "https://www.inss.org.il/wp-content/uploads/2026/01/Adkan28.3ENG_3.pdf" }
+    ],
+    detail: "텔아비브대 부설 연구소로 2006년 재편. 이스라엘 국가안보에 관한 핵심 이슈를 연구하며, 정부 및 군 관계자들에게 정책 자문 제공. 매년 '이스라엘 전략평가' 보고서 발간."
+  },
+  {
+    id: 12,
+    name: "브루킹스 도하 센터",
+    nameEn: "Brookings Doha Center",
+    country: "QA", countryName: "카타르",
+    city: "도하",
+    founded: 2008,
+    focus: ["중동 정책", "민주주의", "경제발전", "안보"],
+    category: ["geo"],
+    orientation: "미국 <strong>브루킹스 연구소</strong> 도하 분소. 비교적 독립적·중도자유주의 성향. MENA 지역의 안보, 경제, 거버넌스 이슈에 대한 글로벌 관점의 분석 제공.",
+    website: "https://www.brookings.edu/centers/center-for-middle-east-policy/",
+    recentReports: [
+      { title: "이스라엘 안보·경제·외교 분석 시리즈", date: "2025-2026", url: "https://www.brookings.edu/regions/middle-east-north-africa/israel/" }
+    ],
+    detail: "미국 브루킹스 연구소의 카타르 분소로 2008년 설립. 중동 및 북아프리카 지역의 정치·경제·안보 이슈에 대한 정책 연구 수행. MENA 339개 연구센터 중 8위 평가."
+  },
+  {
+    id: 13,
+    name: "걸프연구센터",
+    nameEn: "Gulf Research Center (GRC)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "제다/제네바/캠브리지",
+    founded: 2000,
+    focus: ["걸프 정치", "경제", "안보", "이민", "에너지"],
+    category: ["geo", "energy"],
+    orientation: "<strong>독립 연구기관</strong>. 사우디 기반이나 제네바·캠브리지에도 사무소 운영. 걸프 지역 전반의 정치·경제·안보 이슈를 다루며, 비교적 학술적·객관적 접근. 아랍 싱크탱크 네트워크 구축에 참여.",
+    website: "#",
+    recentReports: [
+      { title: "아랍 싱크탱크·연구센터 네트워크 공동 출범 (데라삿·알렉산드리아 도서관 협력)", date: "2025년 12월", url: "#" }
+    ],
+    detail: "2000년 설립. 사우디·제네바·캠브리지 3개 거점 운영. 걸프 지역의 정치경제·안보·사회 이슈에 대한 독립적 연구 수행. GCC 국가들의 정책 결정 지원."
+  },
+  {
+    id: 14,
+    name: "이슬람 군사대테러연합",
+    nameEn: "Islamic Military Counter Terrorism Coalition (IMCTC)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2015,
+    focus: ["대테러", "군사협력", "이데올로기 대응", "정보 공유"],
+    category: ["geo"],
+    orientation: "사우디 주도의 <strong>41개국 이슬람 군사연합</strong>. 싱크탱크보다는 군사협력체이나 대테러 관련 연구·분석·정보공유 기능 수행. 테러리즘 이데올로기 대응 연구도 병행.",
+    website: "#",
+    recentReports: [
+      { title: "대테러 이데올로기 대응 및 정보 공유 프로그램", date: "상시", url: "#" }
+    ],
+    detail: "2015년 사우디 주도로 설립된 41개 이슬람 국가 군사연합. 군사 작전 조율, 대테러 이데올로기 대응, 정보 공유, 역량 강화 등을 수행. 리야드에 본부."
+  }
 ];
 
-// ===== STATE =====
-let activeFilter='all', searchQuery='', langMode='both';
+const countryColors = { SA: '#4ade80', AE: '#fb7185', QA: '#f0abfc', BH: '#fca5a5', IL: '#93c5fd', multi: '#a5b4fc' };
+const countryClasses = { SA: 'country-sa', AE: 'country-ae', QA: 'country-qa', BH: 'country-bh', IL: 'country-il', multi: 'country-multi' };
 
-function formatDate(ds){const d=new Date(ds+'T00:00:00');return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
-function daysAgo(ds){const t=new Date('2026-04-09'),d=new Date(ds),diff=Math.floor((t-d)/(864e5));return diff===0?'오늘':diff===1?'어제':`${diff}일 전`;}
+let currentFilter = 'all';
+let searchQuery = '';
 
-// Saudi media outlet ordering: Arab News > SPA > Saudi Gazette > Argaam > Asharq Al-Awsat > others
-const SAUDI_SOURCE_ORDER = {'Arab News':1,'SPA':2,'Saudi Gazette':3,'Argaam':4,'Asharq Al-Awsat':5};
-function saudiSrcRank(s){return SAUDI_SOURCE_ORDER[s]||99;}
+function getCountryStats() {
+  const stats = {};
+  thinktanks.forEach(t => {
+    stats[t.country] = stats[t.country] || { name: t.countryName, count: 0 };
+    stats[t.country].count++;
+  });
+  return stats;
+}
 
-function getFiltered(){
-  let f=D;
-  if(activeFilter!=='all') f=f.filter(n=>n.c===activeFilter);
-  if(searchQuery){const q=searchQuery.toLowerCase(); f=f.filter(n=>n.t.toLowerCase().includes(q)||n.m.toLowerCase().includes(q)||n.s.toLowerCase().includes(q)||(n.k&&n.k.toLowerCase().includes(q))||(n.mk&&n.mk.toLowerCase().includes(q))||n.tg.some(t=>t.toLowerCase().includes(q)));}
-  // Sort: 1) date desc  2) for Saudi: source order  3) priority desc
-  return f.sort((a,b)=>{
-    const dd = new Date(b.d) - new Date(a.d);
-    if(dd) return dd;
-    if(a.c==='saudi' && b.c==='saudi'){
-      const sd = saudiSrcRank(a.s) - saudiSrcRank(b.s);
-      if(sd) return sd;
+function renderCountryPills() {
+  const stats = getCountryStats();
+  const container = document.getElementById('countryPills');
+  container.innerHTML = Object.entries(stats).map(([code, s]) => `
+    <div class="country-pill" onclick="setFilter('${code}')">
+      <div class="dot" style="background:${countryColors[code]}"></div>
+      <span class="name">${s.name}</span>
+      <span class="count">${s.count}개 기관</span>
+    </div>
+  `).join('');
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  const filtered = thinktanks.filter(t => {
+    if (currentFilter !== 'all' && currentFilter !== 'geo' && currentFilter !== 'energy') {
+      if (t.country !== currentFilter) return false;
     }
-    return (b.p||0) - (a.p||0);
+    if (currentFilter === 'geo' && !t.category.includes('geo')) return false;
+    if (currentFilter === 'energy' && !t.category.includes('energy')) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return t.name.toLowerCase().includes(q) || t.nameEn.toLowerCase().includes(q) || t.countryName.includes(q);
+    }
+    return true;
+  });
+
+  document.getElementById('totalCount').textContent = filtered.length;
+
+  grid.innerHTML = filtered.map(t => `
+    <div class="card" onclick="openDetail(${t.id})">
+      <div class="card-header">
+        <div>
+          <h3>${t.name}</h3>
+          <div class="eng">${t.nameEn}</div>
+        </div>
+        <span class="country-badge ${countryClasses[t.country]}">${t.countryName}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          ${t.focus.slice(0,4).map(f => `<span class="tag focus">${f}</span>`).join('')}
+          <span class="tag">${t.city}</span>
+          <span class="tag">${t.founded}년 설립</span>
+        </div>
+        <div class="orientation">${t.orientation}</div>
+      </div>
+      <div class="card-footer">
+        <div class="footer-title">최근 보고서 / 활동</div>
+        ${t.recentReports.slice(0,2).map(r => `
+          <div class="report-item">
+            ${r.title} <span class="report-date">(${r.date})</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function openDetail(id) {
+  const t = thinktanks.find(x => x.id === id);
+  if (!t) return;
+  const content = document.getElementById('detailContent');
+  content.innerHTML = `
+    <h2>${t.name}</h2>
+    <div class="eng-name">${t.nameEn}</div>
+    <span class="country-badge ${countryClasses[t.country]}" style="display:inline-block;margin-bottom:16px;">${t.countryName} · ${t.city}</span>
+
+    <div class="detail-section">
+      <h4>기관 개요</h4>
+      <p>${t.detail}</p>
+    </div>
+
+    <div class="detail-section">
+      <h4>성향 분석</h4>
+      <p>${t.orientation}</p>
+    </div>
+
+    <div class="detail-section">
+      <h4>주요 연구 분야</h4>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${t.focus.map(f => `<span class="tag focus">${f}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h4>설립 정보</h4>
+      <p>설립연도: ${t.founded}년 | 소재지: ${t.city}, ${t.countryName}</p>
+    </div>
+
+    <div class="detail-section">
+      <h4>최근 보고서 / 활동 (6개월)</h4>
+      <ul>
+        ${t.recentReports.map(r => `
+          <li>${r.url !== '#' ? `<a href="${r.url}" target="_blank">${r.title}</a>` : r.title} <span class="report-date">(${r.date})</span></li>
+        `).join('')}
+      </ul>
+    </div>
+
+    ${t.website !== '#' ? `<a class="detail-link" href="${t.website}" target="_blank">공식 웹사이트 방문</a>` : ''}
+  `;
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === f);
+  });
+  renderCards();
+}
+
+document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('overlay').addEventListener('click', closeDetail);
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => setFilter(btn.dataset.filter));
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderCards();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDetail();
+});
+
+// === Timeline Report Data & Rendering ===
+const allReports = [
+  // ME Council - April 2026
+  { title: "In Lebanon, a New Wave of Displacement Exposes a Broken System", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-08", dateLabel: "4월 8일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW"] },
+  { title: "The Bushehr Reactor: Nuclear Facilities on the Line of Fire", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-07", dateLabel: "4월 7일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW","HOT"] },
+  { title: "Battle for the Straits: Reconfiguring the Strategic Geography of Conflict", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-05", dateLabel: "4월 5일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW"] },
+  { title: "Media Coverage of the Iran War in the Era of Artificial Intelligence", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-03-25", dateLabel: "3월 25일", yearLabel: "2026", url: "https://mecouncil.org/", tags: [] },
+  { title: "Doha Global South Health Policy Initiative (with Gates Foundation)", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-02-19", dateLabel: "2월 19일", yearLabel: "2026", url: "https://mecouncil.org/", tags: [] },
+
+  // INSS - 2026
+  { title: "INSS National Security Survey - February 2026 (이란 우려 78%로 상승)", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-03-05", dateLabel: "3월 5일", yearLabel: "2026", url: "https://www.inss.org.il/publication/inss-survey-february-2026/", tags: ["HOT"] },
+  { title: "'The Roaring Lion' - Hezbollah's War for Survival", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-03-15", dateLabel: "3월 15일", yearLabel: "2026", url: "https://www.inss.org.il/publication/hezbollah-roaring-lion/", tags: ["HOT"] },
+  { title: "INSS Insight #2103: 사우디의 이스라엘 접근법 변화와 정상화 프로세스", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-02-23", dateLabel: "2월 23일", yearLabel: "2026", url: "https://www.inss.org.il/publication/saudi-israel-2026/", tags: ["HOT"] },
+  { title: "The State of Israel's National Security 2025-2026", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-01-20", dateLabel: "1월 20일", yearLabel: "2026", url: "https://www.inss.org.il/publication/policy-2025/", tags: [] },
+  { title: "Strategic Assessment Vol. 28 No. 3 - November 2025", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2025-11-15", dateLabel: "11월", yearLabel: "2025", url: "https://www.inss.org.il/wp-content/uploads/2026/01/Adkan28.3ENG_3.pdf", tags: [] },
+  { title: "National Security Survey - January 2026 (이란 우려 74%)", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-02-01", dateLabel: "2월", yearLabel: "2026", url: "https://www.inss.org.il/", tags: [] },
+  { title: "National Security Survey - December 2025", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-01-05", dateLabel: "1월", yearLabel: "2026", url: "https://www.inss.org.il/", tags: [] },
+
+  // AJCS
+  { title: "제17회 알자지라 포럼: 가자 분쟁과 글로벌 질서", org: "AJCS", orgId: 9, country: "QA", cat: ["geo"], date: "2026-02-07", dateLabel: "2월 7일", yearLabel: "2026", url: "https://studies.aljazeera.net/en", tags: [] },
+  { title: "이란 SCFR과 공동 컨퍼런스 개최", org: "AJCS", orgId: 9, country: "QA", cat: ["geo"], date: "2025-11-01", dateLabel: "11월", yearLabel: "2025", url: "https://studies.aljazeera.net/en", tags: [] },
+  { title: "HBKU와 공동 서구 서사 해체 컨퍼런스", org: "AJCS", orgId: 9, country: "QA", cat: ["geo"], date: "2025-10-20", dateLabel: "10월", yearLabel: "2025", url: "https://studies.aljazeera.net/en", tags: [] },
+
+  // Rasanah
+  { title: "2025 연간전략보고서: Alliances of Necessity and Peace Through Strength (284p)", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-01-15", dateLabel: "1월 15일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/news/new-release-rasanahs-2025-annual-strategic-report/", tags: ["HOT"] },
+  { title: "Iran Case File - 2026년 3월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-04-01", dateLabel: "4월 1일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: ["NEW"] },
+  { title: "Iran Case File - 2026년 2월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-03-01", dateLabel: "3월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
+  { title: "Iran Case File - 2026년 1월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-02-01", dateLabel: "2월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
+  { title: "Iran Case File - 2025년 12월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-01-05", dateLabel: "1월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
+  { title: "이란-사우디 갈등 2011 이후 제2판 발간", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2025-11-01", dateLabel: "11월", yearLabel: "2025", url: "https://rasanah-iiis.org/english/news/rasanah-issues-second-edition-of-the-iran-saudi-arabia-conflict-post-2011/", tags: [] },
+
+  // Derasat
+  { title: "아틀란틱 카운슬 공동세미나: GCC 재정건전성과 이란전쟁 시 거시경제 안정", org: "Derasat", orgId: 10, country: "BH", cat: ["geo","energy"], date: "2026-03-01", dateLabel: "3월", yearLabel: "2026", url: "https://www.derasat.org.bh/en/derasat-participates-in-a-seminar-organized-by-the-atlantic-council-on-the-gcc-fiscal-resilienceand-macroeconomic-stability-in-gcc-countries-during-the-iran-war/", tags: [] },
+  { title: "제7회 데라삿 포럼: 아랍 연구센터 컨소시엄 및 네트워크 출범", org: "Derasat", orgId: 10, country: "BH", cat: ["geo"], date: "2025-12-22", dateLabel: "12월", yearLabel: "2025", url: "https://www.derasat.org.bh/", tags: [] },
+  { title: "걸프 안보 정세 분기 분석", org: "Derasat", orgId: 10, country: "BH", cat: ["geo"], date: "2025-11-15", dateLabel: "11월", yearLabel: "2025", url: "https://www.derasat.org.bh/", tags: [] },
+
+  // KAPSARC
+  { title: "GCC 국가 간 전력 교역 잠재력 분석 (연 10억$ 절감)", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-12-01", dateLabel: "12월", yearLabel: "2025", url: "https://www.kapsarc.org/our-offerings/publications/charged-possibilities-exploring-the-potential-of-regional-electricity-trade/", tags: [] },
+  { title: "직접공기포집(DAC) 비용 분석: 톤당 $285~$826", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-11-10", dateLabel: "11월", yearLabel: "2025", url: "https://www.kapsarc.org/our-offerings/publications/", tags: [] },
+  { title: "사우디 석유화학 탄소순환경제 CO2 활용 잠재력", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-10-15", dateLabel: "10월", yearLabel: "2025", url: "https://www.kapsarc.org/our-offerings/publications/circular-carbon-economy-in-the-petrochemical-sector-in-saudi-arabia-a-review-of-co2-utilization-potential-pathways/", tags: [] },
+  { title: "사우디 건물 에너지 효율성의 경제학", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2026-01-12", dateLabel: "1월", yearLabel: "2026", url: "https://www.kapsarc.org/our-offerings/publications/", tags: [] },
+  { title: "Modeling and Projecting Regional Electricity Demand for Saudi Arabia", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2026-02-04", dateLabel: "2월", yearLabel: "2026", url: "https://www.kapsarc.org/our-offerings/publications/modeling-and-projecting-regional-electricity-demand-for-saudi-arabia", tags: [] },
+  { title: "Saudi Arabia Energy Report 2025", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-11-25", dateLabel: "11월", yearLabel: "2025", url: "https://www.kapsarc.org/our-offerings/publications/saudi-arabia-energy-report", tags: [] },
+  { title: "사우디 GDP 재산정 영향 분석 (비석유 비중 53.2%)", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-12-10", dateLabel: "12월", yearLabel: "2025", url: "https://www.kapsarc.org/", tags: [] },
+
+  // ECSSR
+  { title: "UAE 국가안보 관련 지역·국제 동향 분석 시리즈", org: "ECSSR", orgId: 6, country: "AE", cat: ["geo"], date: "2025-12-15", dateLabel: "12월", yearLabel: "2025", url: "https://www.ecssr.ae/en/", tags: [] },
+  { title: "걸프 지역 안보·경제·사회 이슈 정기 분석", org: "ECSSR", orgId: 6, country: "AE", cat: ["geo"], date: "2026-02-10", dateLabel: "2월", yearLabel: "2026", url: "https://www.ecssr.ae/en/", tags: [] },
+
+  // KFCRIS
+  { title: "Dirasat 73: Sinology as an Islamic Science", org: "KFCRIS", orgId: 1, country: "SA", cat: ["culture"], date: "2025-01-01", dateLabel: "1월", yearLabel: "2025", url: "https://kfcris.com/en/view/22", tags: [] },
+
+  // GRC
+  { title: "아랍 싱크탱크·연구센터 네트워크 공동 출범", org: "GRC", orgId: 13, country: "SA", cat: ["geo"], date: "2025-12-22", dateLabel: "12월", yearLabel: "2025", url: "https://www.grc.net/", tags: [] },
+  { title: "GCC 국가 정책 동향 분기 분석", org: "GRC", orgId: 13, country: "SA", cat: ["geo","energy"], date: "2026-01-30", dateLabel: "1월", yearLabel: "2026", url: "https://www.grc.net/", tags: [] },
+
+  // AGDA
+  { title: "2025-2026학년 PGD/MAGAD/MAHAD/MILAD 코호트 개시", org: "AGDA", orgId: 7, country: "AE", cat: ["geo"], date: "2025-09-06", dateLabel: "9월", yearLabel: "2025", url: "https://www.agda.ac.ae/", tags: [] },
+  { title: "UAE-인도 싱크탱크 교류 방문 (SASS)", org: "AGDA", orgId: 7, country: "AE", cat: ["geo"], date: "2025-06-26", dateLabel: "6월", yearLabel: "2025", url: "https://english.sass.org.cn/2025/0626/c5489a578785/page.htm", tags: [] },
+].sort((a, b) => b.date.localeCompare(a.date));
+
+// === X (Twitter) Account Data ===
+const xAccounts = [
+  { orgId: 2, name: "KAPSARC", handle: "@KAPSARC", url: "https://twitter.com/KAPSARC", country: "SA",
+    description: "사우디 에너지 정책 연구센터의 공식 X. 에너지 전환, 석유시장, 탄소중립 관련 최신 분석 공유.",
+    samplePosts: ["⚡ 새 보고서: GCC 전력 교역으로 연간 10억 달러 이상 절감 가능", "🌍 KAPSARC 글로벌 에너지 콘퍼런스 라이브 업데이트 진행 중", "📊 사우디 비석유 부문 GDP 53.2%로 재산정 - 이코노미 다각화 가속"] },
+  { orgId: 1, name: "KFCRIS", handle: "@kfcris_en", url: "https://twitter.com/kfcris_en", country: "SA",
+    description: "킹 파이살 연구·이슬람학 센터 영문 계정. 학술 컨퍼런스, 이슬람 문명 연구, 신간 도서 안내.",
+    samplePosts: ["📖 신간 Dirasat 73: 이슬람 과학으로서의 중국학 출간", "🎓 KFCRIS 국제학술대회 연사 발표", "🕌 이슬람 문명·문화에 관한 새로운 연구 시리즈 공개"] },
+  { orgId: 3, name: "Rasanah Institute", handle: "@rasanahiiis", url: "https://twitter.com/rasanahiiis", country: "SA",
+    description: "이란 전문 연구소. 이란 내정·외교·군사 동향에 대한 분석을 아랍어/영어/페르시아어로 발신.",
+    samplePosts: ["🇮🇷 Iran Case File 4월호 출간 - 이란 내부 정세 종합 분석", "📕 2025 연간전략보고서 'Alliances of Necessity' 공개", "⚠️ 이란-사우디 관계 변화에 대한 신규 분석 발표"] },
+  { orgId: 6, name: "The ECSSR", handle: "@TheECSSR", url: "https://twitter.com/TheECSSR", country: "AE",
+    description: "아부다비 에미리츠 전략연구센터. UAE 국가안보·외교·경제 분야 연구 발신.",
+    samplePosts: ["📡 ECSSR 국제 콘퍼런스 2026 개막", "🛡️ UAE 국가안보 관련 신규 분석 보고서 발간", "🌐 걸프 지역 외교·전략 동향 주간 브리핑"] },
+  { orgId: 7, name: "AGDA", handle: "@AGDAUAE", url: "https://twitter.com/AGDAUAE", country: "AE",
+    description: "안와르 가르가시 외교 아카데미. 외교관 교육·UAE 외교정책 연구 활동 공유.",
+    samplePosts: ["🎓 2025-2026학년 신입 외교관 양성 코호트 입학식", "🌍 UAE-인도 싱크탱크 교류 프로그램 진행", "📚 외교 리더십 마스터 프로그램 신입생 모집"] },
+  { orgId: 8, name: "ME Council", handle: "@ME_Council", url: "https://twitter.com/ME_Council", country: "QA",
+    description: "도하 기반 독립 정책연구기관. MENA 지역 지정학 상황평가 시리즈를 가장 활발히 발신.",
+    samplePosts: ["📰 신규 Situation Assessment: 부셰르 원자로 이슈 분석", "🌊 해협 전쟁: 갈등의 전략 지리학 재구성", "🇱🇧 레바논 신규 난민 100만 명 - 시스템 붕괴 분석"] },
+  { orgId: 10, name: "Derasat Bahrain", handle: "@DerasatBH", url: "https://twitter.com/DerasatBH", country: "BH",
+    description: "바레인 전략·국제·에너지연구센터. 걸프 안보, 에너지, 거시경제 이슈 발신.",
+    samplePosts: ["🤝 아틀란틱 카운슬 공동 세미나 라이브 업데이트", "📊 GCC 재정 건전성 분석 신규 보고서", "🌐 아랍 싱크탱크 네트워크 공식 출범"] },
+  { orgId: 11, name: "INSS", handle: "@INSSIsrael", url: "https://twitter.com/INSSIsrael", country: "IL",
+    description: "이스라엘 국가안보연구소. 이란·헤즈볼라·가자·사우디-이스라엘 정상화 등 안보 이슈 분석.",
+    samplePosts: ["📊 INSS 2월 국가안보설문: 이란 우려 78%로 상승", "🦁 'The Roaring Lion' - 헤즈볼라 생존 전쟁 분석", "🇸🇦 사우디의 이스라엘 접근법 변화 분석 (Insight #2103)"] },
+  { orgId: 13, name: "Gulf Research Center", handle: "@Gulf_Research", url: "https://twitter.com/Gulf_Research", country: "SA",
+    description: "걸프연구센터(GRC). 사우디·제네바·캠브리지 거점. GCC 정치·경제·안보 독립 연구 발신.",
+    samplePosts: ["🌐 아랍 싱크탱크·연구센터 네트워크 출범 공식 발표", "📚 걸프 정책 동향 분기 분석 출간", "🤝 EuroMeSCo 파트너십 강화 공동 컨퍼런스 개최"] },
+  { orgId: 9, name: "AJCS", handle: "@ajstudies", url: "https://www.facebook.com/ajstudies/", country: "QA",
+    description: "알자지라 연구센터. 주로 페이스북·인스타그램에서 활발히 활동. 영문 X 계정은 비활성.",
+    samplePosts: ["🎤 제17회 알자지라 포럼 - 가자와 글로벌 질서 (도하 개최)", "🇮🇷 이란 전략외교위원회와 공동 컨퍼런스", "📚 서구 서사 해체 학술 컨퍼런스 (HBKU 공동주최)"] },
+];
+
+let tlFilter = 'all';
+
+function renderTimeline() {
+  const list = document.getElementById('timelineList');
+  const filtered = allReports.filter(r => {
+    if (tlFilter === 'all') return true;
+    if (tlFilter === 'geo' || tlFilter === 'energy') return r.cat.includes(tlFilter);
+    return r.country === tlFilter;
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="tl-empty">해당 필터에 맞는 보고서가 없습니다.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(r => `
+    <div class="tl-item" onclick="${r.url !== '#' ? `window.open('${r.url}','_blank')` : ''}">
+      <div class="tl-date-col">
+        <div class="tl-month">${r.dateLabel}</div>
+        <div class="tl-year">${r.yearLabel}</div>
+      </div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <div class="tl-title">${r.url !== '#' ? `<a href="${r.url}" target="_blank">${r.title}</a>` : r.title}</div>
+        <div class="tl-meta">
+          <span class="tl-country-dot" style="background:${countryColors[r.country]}"></span>
+          <span class="tl-org">${r.org}</span>
+          ${r.tags.map(t => t === 'HOT' ? '<span class="tl-tag hot">HOT</span>' : t === 'NEW' ? '<span class="tl-tag new">NEW</span>' : `<span class="tl-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.tl-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    tlFilter = btn.dataset.tl;
+    document.querySelectorAll('.tl-filter').forEach(b => b.classList.toggle('active', b.dataset.tl === tlFilter));
+    renderTimeline();
+  });
+});
+
+// === Reports Archive Section ===
+let arSearch = '';
+let arSort = 'newest';
+let arOrgFilter = 'all';
+
+function renderArchiveStats() {
+  const totalReports = allReports.length;
+  const last30Days = allReports.filter(r => {
+    const d = new Date(r.date);
+    const cutoff = new Date('2026-03-09');
+    return d >= cutoff;
+  }).length;
+  const orgs = new Set(allReports.map(r => r.org)).size;
+  const geoReports = allReports.filter(r => r.cat.includes('geo')).length;
+  const energyReports = allReports.filter(r => r.cat.includes('energy')).length;
+
+  document.getElementById('archiveStats').innerHTML = `
+    <div class="ar-stat"><div class="num">${totalReports}</div><div class="label">총 보고서</div></div>
+    <div class="ar-stat"><div class="num">${last30Days}</div><div class="label">최근 30일</div></div>
+    <div class="ar-stat"><div class="num">${orgs}</div><div class="label">발간 기관</div></div>
+    <div class="ar-stat"><div class="num">${geoReports}</div><div class="label">외교·안보</div></div>
+    <div class="ar-stat"><div class="num">${energyReports}</div><div class="label">에너지</div></div>
+  `;
+}
+
+function populateArOrgFilter() {
+  const orgs = [...new Set(allReports.map(r => r.org))].sort();
+  const select = document.getElementById('arOrgFilter');
+  orgs.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o;
+    opt.textContent = o;
+    select.appendChild(opt);
   });
 }
 
-function renderStats(){
-  const c={all:D.length,saudi:D.filter(n=>n.c==='saudi').length,western:D.filter(n=>n.c==='western').length,korean:D.filter(n=>n.c==='korean').length,other:D.filter(n=>n.c==='other').length};
-  document.getElementById('statsBar').innerHTML=`
-    <div class="stat-chip"><span class="count">${c.all}</span> 전체</div>
-    <div class="stat-chip">\u{1F1F8}\u{1F1E6}<span class="count">${c.saudi}</span> 사우디</div>
-    <div class="stat-chip">\u{1F30D}<span class="count">${c.western}</span> 서방</div>
-    <div class="stat-chip">\u{1F1F0}\u{1F1F7}<span class="count">${c.korean}</span> 한국</div>
-    <div class="stat-chip">\u{1F4F0}<span class="count">${c.other}</span> 기타</div>`;
+function renderArchive() {
+  const grid = document.getElementById('archiveGrid');
+  let filtered = allReports.filter(r => {
+    if (arOrgFilter !== 'all' && r.org !== arOrgFilter) return false;
+    if (arSearch) {
+      const q = arSearch.toLowerCase();
+      return r.title.toLowerCase().includes(q) || r.org.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  if (arSort === 'newest') filtered = filtered.sort((a,b) => b.date.localeCompare(a.date));
+  else if (arSort === 'oldest') filtered = filtered.sort((a,b) => a.date.localeCompare(b.date));
+  else if (arSort === 'org') filtered = filtered.sort((a,b) => a.org.localeCompare(b.org) || b.date.localeCompare(a.date));
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="tl-empty" style="grid-column:1/-1;">검색 결과가 없습니다.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(r => `
+    <div class="ar-card" onclick="${r.url !== '#' ? `window.open('${r.url}','_blank')` : ''}">
+      <div class="ar-card-top">
+        <div class="ar-card-title">${r.url !== '#' ? `<a href="${r.url}" target="_blank" onclick="event.stopPropagation()">${r.title}</a>` : r.title}</div>
+        <div class="ar-card-date">${r.dateLabel} ${r.yearLabel.slice(2)}</div>
+      </div>
+      <div class="ar-card-meta">
+        <span class="tl-country-dot" style="background:${countryColors[r.country]}"></span>
+        <span class="ar-card-org">${r.org}</span>
+        ${r.cat.map(c => `<span class="tl-tag">${c === 'geo' ? '외교·안보' : c === 'energy' ? '에너지' : c === 'culture' ? '문화' : c}</span>`).join('')}
+        ${r.tags.map(t => t === 'HOT' ? '<span class="tl-tag hot">HOT</span>' : t === 'NEW' ? '<span class="tl-tag new">NEW</span>' : '').join('')}
+      </div>
+    </div>
+  `).join('');
 }
 
-function renderControls(){
-  const filters=[{k:'all',l:'전체'},{k:'saudi',l:'사우디 언론'},{k:'western',l:'서방 언론'},{k:'korean',l:'한국 언론'},{k:'other',l:'기타 중동 언론'}];
-  const langs=[{k:'both',l:'영+한'},{k:'ko',l:'한국어만'},{k:'en',l:'영어만'}];
-  document.getElementById('controls').innerHTML=
-    filters.map(f=>`<button class="filter-btn ${f.k} ${activeFilter===f.k?'active':''}" data-f="${f.k}">${f.l}</button>`).join('')+
-    '<div class="sep"></div>'+
-    langs.map(l=>`<button class="lang-btn ${langMode===l.k?'active':''}" data-l="${l.k}">${l.l}</button>`).join('');
-  document.querySelectorAll('.filter-btn').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.f;renderControls();renderContent();});
-  document.querySelectorAll('.lang-btn').forEach(b=>b.onclick=()=>{langMode=b.dataset.l;document.querySelectorAll('.lang-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderContent();});
+document.getElementById('arSearch').addEventListener('input', e => { arSearch = e.target.value; renderArchive(); });
+document.getElementById('arSort').addEventListener('change', e => { arSort = e.target.value; renderArchive(); });
+document.getElementById('arOrgFilter').addEventListener('change', e => { arOrgFilter = e.target.value; renderArchive(); });
+
+// === X Feed Section ===
+function renderXGrid() {
+  const grid = document.getElementById('xGrid');
+  grid.innerHTML = xAccounts.map(x => {
+    const initials = x.name.substring(0, 2).toUpperCase();
+    return `
+      <div class="x-card">
+        <div class="x-card-header">
+          <div class="x-avatar" style="background:linear-gradient(135deg, ${countryColors[x.country]}, #1da1f2);">${initials}</div>
+          <div class="x-info">
+            <div class="x-name">${x.name}</div>
+            <div class="x-handle">${x.handle}</div>
+          </div>
+        </div>
+        <div class="x-card-body">
+          <div style="font-size:11px;color:var(--text-dim);line-height:1.5;margin-bottom:8px;">${x.description}</div>
+          ${x.samplePosts.map((p, i) => `
+            <div class="x-post">
+              ${p}
+              <div class="x-post-date">최근 게시 · 클릭하여 X에서 보기</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="x-card-footer">
+          <a href="${x.url}" target="_blank" class="x-link">
+            <svg class="x-icon" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X에서 보기
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
-function prioBadge(n){
-  if(!n.r) return '';
-  const cls={'속보':'prio-breaking','헤드라인':'prio-headline','심층분석':'prio-analysis','정책발표':'prio-policy','주요경제':'prio-economy'};
-  return `<span class="prio-badge ${cls[n.r]||'prio-normal'}">${n.r}</span>`;
-}
-
-function card(n){
-  const isKo=n.l==='ko';
-  const isTop=n.p>=9;
-  let th='',mh='';
-  const pb=prioBadge(n);
-  if(isKo){th=`<div class="title-only">${n.t}${pb}</div>`;mh=`<div class="summary-only">${n.m}</div>`;}
-  else if(langMode==='en'){th=`<div class="title-only">${n.t}${pb}</div>`;mh=`<div class="summary-only">${n.m}</div>`;}
-  else if(langMode==='ko'){th=`<div class="title-only">${n.k||n.t}${pb}</div>`;mh=`<div class="summary-only">${n.mk||n.m}</div>`;}
-  else{th=`<div class="title-en">${n.t}${pb}</div>${n.k?`<div class="title-ko">${n.k}</div>`:''}`;mh=`<div class="summary-en">${n.m}</div>${n.mk?`<div class="summary-ko">${n.mk}</div>`:''}`;}
-  return `<div class="news-card ${n.c}${isTop?' prio-top':''}"><div class="card-header"><span class="source-tag ${n.c}">${n.s}</span><span class="card-date">${daysAgo(n.d)} · ${formatDate(n.d)}</span></div>${th}${mh}<div class="card-footer"><div class="topic-tags">${n.tg.map(t=>`<span class="topic-tag">${t}</span>`).join('')}</div><a href="${n.u}" target="_blank" class="read-link">원문 &#8594;</a></div></div>`;
-}
-
-function renderContent(){
-  const f=getFiltered(),main=document.getElementById('mainContent');
-  if(!f.length){main.innerHTML='<div class="no-results">검색 결과 없음</div>';return;}
-  let h=`<div class="summary-panel"><h2>오늘의 핵심 요약 (2026.04.09)</h2><div class="summary-points">
-    <div class="summary-point"><span class="summary-icon">\u{1F6E1}\u{FE0F}</span><div class="summary-text"><strong>이란-미국 2주 휴전 합의:</strong> 파키스탄 중재. 호르무즈 해협 재개방. 그러나 휴전 발표 후에도 걸프 전역 공격 지속 (쿠웨이트 28회, UAE 35회 드론 공격).</div></div>
-    <div class="summary-point"><span class="summary-icon">\u{1F6E2}\u{FE0F}</span><div class="summary-text"><strong>에너지 위기:</strong> 사우디 동서 파이프라인(일 700만 배럴) 드론 피격, 피해 제한적. 유가 사상 최고 프리미엄 $19.50. 지속 시 $180/bbl 전망.</div></div>
-    <div class="summary-point"><span class="summary-icon">\u{1F4B0}</span><div class="summary-text"><strong>경제·투자:</strong> 사우디 GDP 4.3~4.7% 전망. PIF 사모신용 펀드 출범. 걸프 SWF $810억 워너 인수 지원. TASI 2.3% 상승. GCC 신용 '안정적'.</div></div>
-    <div class="summary-point"><span class="summary-icon">\u{1F1F0}\u{1F1F7}</span><div class="summary-text"><strong>한국 영향:</strong> 원/달러 1,500원 돌파. 소비자물가 2.4% 급등. 반도체 수출 151% 역대 최대. 중소기업 피해 422건. 휴전에 증시 급등.</div></div>
-  </div></div>`;
-
-  h+=`<div class="article-count-note">검색된 기사: <strong>${f.length}건</strong> / 전체 ${D.length}건 (사우디 언론: SPA, Arab News, Saudi Gazette, Argaam, Asharq Al-Awsat 포함)</div>`;
-
-  if(activeFilter==='all'){
-    [{k:'saudi',n:'사우디 언론 (Arab News → SPA → Saudi Gazette → Argaam → Asharq Al-Awsat 順)',b:'badge-saudi',i:'\u{1F1F8}\u{1F1E6}'},
-     {k:'western',n:'서방 언론 (Bloomberg · WSJ · Reuters · CNN · CNBC · NPR · FT)',b:'badge-western',i:'\u{1F30D}'},
-     {k:'other',n:'기타 중동·국제 언론 (Al Jazeera · Al Arabiya · UN · IMO · ICAO · PBS)',b:'badge-other',i:'\u{1F4F0}'},
-     {k:'korean',n:'한국 언론 (MBC · 서울신문 · 뉴스핌 · 이데일리 · 헤럴드경제 등)',b:'badge-korean',i:'\u{1F1F0}\u{1F1F7}'}
-    ].forEach(g=>{const items=f.filter(n=>n.c===g.k);if(!items.length)return;h+=`<div class="section-title">${g.i} ${g.n} <span class="badge ${g.b}">${items.length}</span></div><div class="news-grid">${items.map(card).join('')}</div>`;});
-  } else h+=`<div class="news-grid">${f.map(card).join('')}</div>`;
-  main.innerHTML=h;
-}
-
-document.getElementById('currentDate').textContent='2026년 4월 9일 목요일';
-document.getElementById('searchInput').addEventListener('input',e=>{searchQuery=e.target.value;renderContent();});
-window.addEventListener('scroll',()=>document.getElementById('scrollTop').classList.toggle('show',window.scrollY>400));
-renderStats();renderControls();renderContent();
+renderCountryPills();
+renderCards();
+renderTimeline();
+populateArOrgFilter();
+renderArchiveStats();
+renderArchive();
+renderXGrid();
 </script>
 </body>
 </html>
