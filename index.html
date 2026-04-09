@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Middle East & Saudi Arabia Think Tanks Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232735;
+    --border: #2e3345;
+    --text: #e4e6ef;
+    --text-dim: #8b8fa3;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #ffd93d;
+    --saudi: #006c35;
+    --uae: #c8102e;
+    --qatar: #8a1538;
+    --bahrain: #ce1126;
+    --israel: #0038b8;
+    --multi: #6c63ff;
+  }
+
+  body {
+    font-family: 'Noto Sans KR', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #232735 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+  }
+
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6c63ff, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+
+  .header p {
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .search-box {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    width: 240px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--text-dim); }
+
+  .main { padding: 24px 40px; max-width: 1400px; margin: 0 auto; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6c63ff, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stat-card .label { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.1);
+  }
+
+  .card-header {
+    padding: 20px 20px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .card-header h3 { font-size: 16px; font-weight: 600; line-height: 1.4; }
+  .card-header .eng { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  .country-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+
+  .country-sa { background: rgba(0,108,53,0.2); color: #4ade80; border: 1px solid rgba(0,108,53,0.3); }
+  .country-ae { background: rgba(200,16,46,0.15); color: #fb7185; border: 1px solid rgba(200,16,46,0.25); }
+  .country-qa { background: rgba(138,21,56,0.2); color: #f0abfc; border: 1px solid rgba(138,21,56,0.3); }
+  .country-bh { background: rgba(206,17,38,0.15); color: #fca5a5; border: 1px solid rgba(206,17,38,0.25); }
+  .country-il { background: rgba(0,56,184,0.2); color: #93c5fd; border: 1px solid rgba(0,56,184,0.3); }
+  .country-multi { background: rgba(108,99,255,0.15); color: #a5b4fc; border: 1px solid rgba(108,99,255,0.25); }
+
+  .card-body { padding: 0 20px 16px; }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .tag {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .tag.focus { background: rgba(108,99,255,0.12); color: #a5b4fc; border-color: rgba(108,99,255,0.25); }
+
+  .orientation {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .orientation strong { color: var(--accent2); font-weight: 500; }
+
+  .card-footer {
+    border-top: 1px solid var(--border);
+    padding: 14px 20px;
+    background: rgba(0,0,0,0.15);
+  }
+
+  .card-footer .footer-title {
+    font-size: 11px;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .report-item {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 4px;
+    padding-left: 12px;
+    position: relative;
+  }
+
+  .report-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .report-item a {
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .report-item a:hover { color: var(--accent); }
+
+  .report-date { color: var(--text-dim); font-size: 11px; }
+
+  .detail-panel {
+    position: fixed;
+    right: -520px;
+    top: 0;
+    width: 520px;
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 200;
+    transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+    box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+  }
+
+  .detail-panel.open { right: 0; }
+
+  .detail-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .detail-close:hover { background: var(--accent3); border-color: var(--accent3); }
+
+  .detail-content { padding: 28px; }
+  .detail-content h2 { font-size: 20px; margin-bottom: 4px; padding-right: 40px; }
+  .detail-content .eng-name { color: var(--text-dim); font-size: 13px; margin-bottom: 16px; }
+
+  .detail-section { margin-bottom: 20px; }
+  .detail-section h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .detail-section p, .detail-section li {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .detail-section ul { list-style: none; padding: 0; }
+  .detail-section li { padding-left: 14px; position: relative; margin-bottom: 6px; }
+  .detail-section li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .detail-link {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 18px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  .detail-link:hover { opacity: 0.85; }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .overlay.open { opacity: 1; pointer-events: auto; }
+
+  .map-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .country-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .country-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .country-pill:hover { border-color: var(--accent); }
+  .country-pill .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .country-pill .name { font-size: 13px; font-weight: 500; }
+  .country-pill .count { font-size: 12px; color: var(--text-dim); }
+
+  /* === Latest Reports Timeline === */
+  .timeline-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .timeline-section::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 300px; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--surface));
+    pointer-events: none;
+    z-index: 2;
+    display: none;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .timeline-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .timeline-header h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent3);
+    border-radius: 2px;
+  }
+
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background: var(--accent3);
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 8px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,107,107,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(255,107,107,0); }
+  }
+
+  .timeline-filters {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tl-filter {
+    padding: 4px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tl-filter:hover { border-color: var(--accent3); color: var(--text); }
+  .tl-filter.active { background: var(--accent3); color: #fff; border-color: var(--accent3); }
+
+  .timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-height: 420px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .timeline-list::-webkit-scrollbar { width: 5px; }
+  .timeline-list::-webkit-scrollbar-track { background: transparent; }
+  .timeline-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .tl-item {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(46,51,69,0.5);
+    transition: background 0.2s;
+    cursor: pointer;
+    border-radius: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .tl-item:last-child { border-bottom: none; }
+  .tl-item:hover { background: rgba(108,99,255,0.06); }
+
+  .tl-date-col {
+    flex-shrink: 0;
+    width: 72px;
+    text-align: right;
+    position: relative;
+  }
+
+  .tl-date-col::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+
+  .tl-month { font-size: 12px; font-weight: 600; color: var(--accent2); line-height: 1.2; }
+  .tl-year { font-size: 11px; color: var(--text-dim); }
+
+  .tl-line {
+    width: 2px;
+    background: var(--border);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .tl-content { flex: 1; min-width: 0; }
+
+  .tl-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .tl-title a {
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .tl-title a:hover { color: var(--accent); }
+
+  .tl-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tl-org {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .tl-country-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .tl-tag {
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    background: rgba(108,99,255,0.1);
+    color: #a5b4fc;
+    border: 1px solid rgba(108,99,255,0.2);
+  }
+
+  .tl-tag.hot {
+    background: rgba(255,107,107,0.12);
+    color: #fca5a5;
+    border-color: rgba(255,107,107,0.25);
+  }
+
+  .tl-tag.new {
+    background: rgba(0,212,170,0.12);
+    color: #6ee7b7;
+    border-color: rgba(0,212,170,0.25);
+  }
+
+  .tl-empty {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    padding: 32px 0;
+  }
+
+  /* === Reports Archive Section === */
+  .archive-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .archive-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .archive-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .archive-header h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent2);
+    border-radius: 2px;
+  }
+
+  .archive-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .ar-search {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+    width: 200px;
+    outline: none;
+  }
+  .ar-search:focus { border-color: var(--accent2); }
+
+  .ar-sort {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .archive-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .ar-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .ar-stat .num {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .ar-stat .label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .archive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+    max-height: 720px;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .archive-grid::-webkit-scrollbar { width: 6px; }
+  .archive-grid::-webkit-scrollbar-track { background: transparent; }
+  .archive-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .ar-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ar-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,212,170,0.08);
+  }
+
+  .ar-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ar-card-title {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--text);
+  }
+
+  .ar-card-title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .ar-card-title a:hover { color: var(--accent2); }
+
+  .ar-card-date {
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ar-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .ar-card-org {
+    font-size: 11px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  /* === X Feed Section === */
+  .x-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .x-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .x-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .x-header h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: #1da1f2;
+    border-radius: 2px;
+  }
+
+  .x-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px;
+  }
+
+  .x-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .x-card:hover {
+    border-color: #1da1f2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29, 161, 242, 0.1);
+  }
+
+  .x-card-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .x-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1da1f2, #6c63ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .x-info { flex: 1; min-width: 0; }
+  .x-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .x-handle {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .x-card-body {
+    padding: 14px 16px;
+    flex: 1;
+  }
+
+  .x-post {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.55;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(46,51,69,0.6);
+  }
+
+  .x-post:last-child { border-bottom: none; }
+
+  .x-post-date {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .x-card-footer {
+    padding: 12px 16px;
+    background: rgba(29, 161, 242, 0.06);
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .x-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #1da1f2;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  .x-link:hover { opacity: 0.85; }
+
+  .x-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  .x-no-account {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+
+  @media (max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .grid { grid-template-columns: 1fr; }
+    .header, .main { padding-left: 20px; padding-right: 20px; }
+    .detail-panel { width: 100%; right: -100%; }
+    .timeline-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .tl-date-col { width: 60px; }
+    .archive-grid { grid-template-columns: 1fr; max-height: 600px; }
+    .x-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Middle East & Saudi Arabia Think Tanks</h1>
+  <p>중동·사우디 싱크탱크 및 연구기관 인터랙티브 대시보드 | 2026년 4월 기준</p>
+  <div class="controls">
+    <button class="filter-btn active" data-filter="all">전체</button>
+    <button class="filter-btn" data-filter="SA">사우디</button>
+    <button class="filter-btn" data-filter="AE">UAE</button>
+    <button class="filter-btn" data-filter="QA">카타르</button>
+    <button class="filter-btn" data-filter="BH">바레인</button>
+    <button class="filter-btn" data-filter="IL">이스라엘</button>
+    <button class="filter-btn" data-filter="geo">외교·안보</button>
+    <button class="filter-btn" data-filter="energy">에너지·경제</button>
+    <input class="search-box" type="text" placeholder="기관명 검색..." id="searchInput">
+  </div>
+</div>
+
+<div class="main">
+  <div class="stats-row">
+    <div class="stat-card"><div class="num" id="totalCount">14</div><div class="label">총 기관 수</div></div>
+    <div class="stat-card"><div class="num">6</div><div class="label">국가</div></div>
+    <div class="stat-card"><div class="num">38+</div><div class="label">최근 6개월 보고서</div></div>
+    <div class="stat-card"><div class="num">1983</div><div class="label">최초 설립연도</div></div>
+  </div>
+
+  <div class="section-title">최신 보고서 타임라인 <span class="pulse-dot"></span></div>
+  <div class="timeline-section">
+    <div class="timeline-header">
+      <h2>Latest Reports & Activities</h2>
+      <div class="timeline-filters">
+        <button class="tl-filter active" data-tl="all">전체</button>
+        <button class="tl-filter" data-tl="geo">외교·안보</button>
+        <button class="tl-filter" data-tl="energy">에너지</button>
+        <button class="tl-filter" data-tl="SA">사우디</button>
+        <button class="tl-filter" data-tl="QA">카타르</button>
+        <button class="tl-filter" data-tl="AE">UAE</button>
+      </div>
+    </div>
+    <div class="timeline-list" id="timelineList"></div>
+  </div>
+
+  <div class="section-title">📚 보고서 아카이브 (최근 6개월)</div>
+  <div class="archive-section">
+    <div class="archive-stats" id="archiveStats"></div>
+    <div class="archive-header">
+      <h2>All Reports</h2>
+      <div class="archive-toolbar">
+        <input type="text" class="ar-search" id="arSearch" placeholder="보고서 제목 검색...">
+        <select class="ar-sort" id="arSort">
+          <option value="newest">최신순</option>
+          <option value="oldest">오래된 순</option>
+          <option value="org">기관별</option>
+        </select>
+        <select class="ar-sort" id="arOrgFilter">
+          <option value="all">전체 기관</option>
+        </select>
+      </div>
+    </div>
+    <div class="archive-grid" id="archiveGrid"></div>
+  </div>
+
+  <div class="section-title">𝕏 기관별 X(Twitter) 피드</div>
+  <div class="x-section">
+    <div class="x-header">
+      <h2>Latest from X (Twitter)</h2>
+      <span style="font-size:11px;color:var(--text-dim);">각 기관의 X 계정 바로가기 - 클릭하면 최신 게시물로 이동</span>
+    </div>
+    <div class="x-grid" id="xGrid"></div>
+  </div>
+
+  <div class="section-title">국가별 분포</div>
+  <div class="map-section">
+    <div class="country-pills" id="countryPills"></div>
+  </div>
+
+  <div class="section-title">기관 목록</div>
+  <div class="grid" id="cardGrid"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="detail-panel" id="detailPanel">
+  <button class="detail-close" id="detailClose">&times;</button>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+
+<script>
+const thinktanks = [
+  {
+    id: 1,
+    name: "킹 파이살 연구·이슬람학 센터",
+    nameEn: "King Faisal Center for Research and Islamic Studies (KFCRIS)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 1983,
+    focus: ["이슬람 연구", "인문학", "사회과학", "문화 교류"],
+    category: ["geo", "culture"],
+    orientation: "사우디 왕실(킹 파이살 재단) 산하. <strong>이슬람 문명·문화 연구</strong> 중심이나, 지정학·외교 분석도 수행. 비교적 학술적·중립적 성향으로, 국제 학자들과의 교류 활발.",
+    website: "https://www.kfcris.com/en",
+    recentReports: [
+      { title: "Dirasat 73: Sinology as an Islamic Science", date: "2025년 1월", url: "https://kfcris.com/en/view/22" },
+      { title: "Dirasat 72: Histories of Sinophone Islam in Macau", date: "2024년 10월", url: "https://kfcris.com/en/view/22" }
+    ],
+    detail: "킹 파이살 재단 소속으로, 이슬람 연구와 아랍 문화에 대한 지식 플랫폼 역할. 출판, 도서관, 아카이브, 박물관 기능을 겸비. 국내외 연구자들을 연결하며 인문·사회과학 원천 연구를 수행."
+  },
+  {
+    id: 2,
+    name: "킹 압둘라 석유연구센터",
+    nameEn: "King Abdullah Petroleum Studies and Research Center (KAPSARC)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2010,
+    focus: ["에너지 정책", "석유·가스", "재생에너지", "기후변화", "경제 다각화"],
+    category: ["energy"],
+    orientation: "사우디 정부 산하 에너지 전문 싱크탱크. <strong>친정부 성향</strong>이나 데이터 기반 연구로 글로벌 신뢰도 확보. 비전 2030과 연계한 에너지 전환, 탄소 순환경제 연구에 집중.",
+    website: "https://www.kapsarc.org",
+    recentReports: [
+      { title: "GCC 국가 간 전력 교역 잠재력 분석 (연 10억 달러 이상 절감 가능)", date: "2025년", url: "https://www.kapsarc.org/our-offerings/publications/charged-possibilities-exploring-the-potential-of-regional-electricity-trade/" },
+      { title: "사우디 건물 에너지 효율성의 경제학", date: "2025년", url: "https://www.kapsarc.org/our-offerings/publications/" },
+      { title: "직접공기포집(DAC) 비용 분석: 톤당 $285~$826", date: "2025년", url: "https://www.kapsarc.org/our-offerings/publications/" },
+      { title: "사우디 석유화학 부문 탄소순환경제 CO2 활용 잠재력", date: "2025년", url: "https://www.kapsarc.org/our-offerings/publications/circular-carbon-economy-in-the-petrochemical-sector-in-saudi-arabia-a-review-of-co2-utilization-potential-pathways/" }
+    ],
+    detail: "KAPSARC는 사우디 에너지 부문 발전과 글로벌 정책에 증거 기반 자문을 제공하는 것이 미션. GDP 재산정(2023년 비석유 비중 53.2%로 상향) 등 경제 구조 전환 분석도 수행. 자하 하디드 설계 건물로도 유명."
+  },
+  {
+    id: 3,
+    name: "라사나 국제이란연구소",
+    nameEn: "Rasanah: International Institute for Iranian Studies",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2017,
+    focus: ["이란 연구", "지정학", "안보", "사우디-이란 관계"],
+    category: ["geo"],
+    orientation: "<strong>사우디 정부 친화적</strong>, 이란 전문 분석 기관. 이란의 내정·외교·군사 동향을 집중 모니터링하며, 사우디 외교 정책 수립에 직간접 기여. 월간·연간 전략보고서 발간.",
+    website: "https://rasanah-iiis.org/english/",
+    recentReports: [
+      { title: "2025 연간전략보고서: 'Alliances of Necessity and Peace Through Strength' (284p)", date: "2026년 초", url: "https://rasanah-iiis.org/english/news/new-release-rasanahs-2025-annual-strategic-report/" },
+      { title: "Iran Case File - 2026년 1월호", date: "2026년 1월", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/" },
+      { title: "이란-사우디 갈등 2011 이후 제2판 발간", date: "2025년", url: "https://rasanah-iiis.org/english/news/rasanah-issues-second-edition-of-the-iran-saudi-arabia-conflict-post-2011/" }
+    ],
+    detail: "라사나는 2017년 설립된 이란 전문 연구소로, 글로벌 다이내믹스·지역 다이내믹스·이란 개관·사우디 리뷰 4개 섹션으로 구성된 연간 전략보고서(ASR)를 발간. 월간 이란 케이스파일도 정기 발행."
+  },
+  {
+    id: 4,
+    name: "프린스 사우드 알파이살 외교학연구소",
+    nameEn: "Prince Saud Al-Faisal Institute for Diplomatic Studies",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2003,
+    focus: ["외교학", "국제관계", "외교관 양성"],
+    category: ["geo"],
+    orientation: "사우디 <strong>외교부 직속</strong> 교육·연구 기관. 외교관 양성과 외교 정책 연구를 겸비. 정부 성향이 강하며 사우디 외교 노선을 학술적으로 뒷받침.",
+    website: "#",
+    recentReports: [
+      { title: "외교관 양성 프로그램 및 정책 브리핑 (비공개)", date: "상시", url: "#" }
+    ],
+    detail: "사우디 외교부 산하 연구소로, 외교관 교육과 외교 정책 연구를 담당. 대외 공개 보고서는 제한적이나, 사우디 외교 전략 수립에 핵심적 역할."
+  },
+  {
+    id: 5,
+    name: "킹 압둘아지즈 국민대화센터",
+    nameEn: "King Abdulaziz Center for National Dialogue (KACND)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2003,
+    focus: ["사회 대화", "다문화 공존", "청년 정책", "사회 개혁"],
+    category: ["social"],
+    orientation: "사우디 <strong>사회 개혁 촉진</strong> 기관. 종파 간 대화, 사회 통합, 청년 참여 등 내부 사회 이슈에 집중. 비전 2030의 사회 개방 노선과 연계.",
+    website: "#",
+    recentReports: [
+      { title: "사우디 사회 대화 및 청년 참여 프로그램 보고서", date: "2025년", url: "#" }
+    ],
+    detail: "사우디 내 종교·종파·세대 간 대화를 촉진하고 사회적 결속을 강화하기 위한 기관. 비전 2030의 사회 개방 정책과 밀접하게 연계되어 운영."
+  },
+  {
+    id: 6,
+    name: "에미리츠 전략연구센터",
+    nameEn: "Emirates Center for Strategic Studies and Research (ECSSR)",
+    country: "AE", countryName: "UAE",
+    city: "아부다비",
+    founded: 1994,
+    focus: ["안보", "지정학", "경제", "에너지", "기술"],
+    category: ["geo", "energy"],
+    orientation: "UAE 정부와 밀접한 <strong>국책 싱크탱크</strong>. 셰이크 압둘라 빈 자이드(외교장관)가 이사회 의장. UAE 국가안보 및 걸프 지역 전략 이슈에 대한 분석 제공. 친정부·친체제 성향.",
+    website: "https://www.ecssr.ae/en/",
+    recentReports: [
+      { title: "UAE 국가안보 관련 지역·국제 동향 분석 보고서 (상시 발간)", date: "2025-2026", url: "https://www.ecssr.ae/en/" },
+      { title: "걸프 지역 안보·경제·사회 이슈 정기 분석", date: "상시", url: "https://www.ecssr.ae/en/" }
+    ],
+    detail: "1994년 셰이크 칼리파 빈 자이드 알 나흐얀의 칙령으로 설립. UAE 및 아랍 걸프 지역의 정치·경제·사회적 사안에 대한 학술 연구 수행. 콘퍼런스, 심포지엄, 워크숍 주최 및 원저서·번역서 출판."
+  },
+  {
+    id: 7,
+    name: "안와르 가르가시 외교 아카데미",
+    nameEn: "Anwar Gargash Diplomatic Academy (AGDA)",
+    country: "AE", countryName: "UAE",
+    city: "아부다비",
+    founded: 2014,
+    focus: ["외교학", "국제관계", "인권", "인도적 지원"],
+    category: ["geo"],
+    orientation: "UAE <strong>연방 자율 외교연구·교육기관</strong>. 에미리트 외교관 양성과 UAE 외교 목표 관련 연구 수행. 인덱스·출판물 등 선도적 자료 생산. 두바이 공공정책센터, 인도 싱크탱크 등과 교류.",
+    website: "https://www.agda.ac.ae/",
+    recentReports: [
+      { title: "2025-2026학년 PGD/MAGAD/MAHAD/MILAD 코호트 개시", date: "2025년 9월", url: "https://www.agda.ac.ae/" },
+      { title: "UAE-인도 싱크탱크 교류 방문 (SASS)", date: "2025년 6월", url: "https://english.sass.org.cn/2025/0626/c5489a578785/page.htm" }
+    ],
+    detail: "2014년 설립, UAE 외교관 및 전문가 양성 전문 기관. 석사(MAGAD, MAHAD, MILAD) 및 PGD 프로그램 운영. 지역 싱크탱크로서의 역할도 확대 중이며 UAE 외교정책 목표에 부합하는 연구 수행."
+  },
+  {
+    id: 8,
+    name: "중동국제문제위원회",
+    nameEn: "Middle East Council on Global Affairs (ME Council)",
+    country: "QA", countryName: "카타르",
+    city: "도하",
+    founded: 2021,
+    focus: ["지정학", "외교", "안보", "사회경제", "인권"],
+    category: ["geo"],
+    orientation: "<strong>독립·비영리</strong> 정책연구기관. 카타르 기반이나 비교적 독립적 입장 유지. MENA 지역 고유의 지정학·사회경제 이슈에 대한 정책 관련 연구와 대화 촉진. 게이츠 재단 등으로부터 펀딩 수주.",
+    website: "https://mecouncil.org/",
+    recentReports: [
+      { title: "The Bushehr Reactor: Nuclear Facilities on the Line of Fire", date: "2026년 4월 7일", url: "https://mecouncil.org/" },
+      { title: "Battle for the Straits: Reconfiguring the Strategic Geography of Conflict", date: "2026년 4월 5일", url: "https://mecouncil.org/" },
+      { title: "In Lebanon, a New Wave of Displacement Exposes a Broken System", date: "2026년 4월 8일", url: "https://mecouncil.org/" }
+    ],
+    detail: "2021년 설립된 비교적 신생 싱크탱크이나 빠르게 성장. 상황평가(Situation Assessment) 시리즈를 통해 중동 현안에 대한 신속한 분석을 제공. 이란 핵시설, 해양 전략지리, 레바논 난민 위기 등 최신 이슈를 다룸."
+  },
+  {
+    id: 9,
+    name: "알자지라 연구센터",
+    nameEn: "Al Jazeera Centre for Studies (AJCS)",
+    country: "QA", countryName: "카타르",
+    city: "도하",
+    founded: 2006,
+    focus: ["지정학", "전략", "미디어", "아랍 세계"],
+    category: ["geo"],
+    orientation: "알자지라 미디어 네트워크 산하. <strong>카타르 정부 친화적</strong>이며, 서구 서사(narrative)에 대한 대안적 시각 제시를 표방. 이란 전략외교위원회(SCFR)와의 공동 컨퍼런스 등 독자적 네트워크 구축.",
+    website: "https://studies.aljazeera.net/en",
+    recentReports: [
+      { title: "제17회 알자지라 포럼 (이스라엘 가자 분쟁 관련)", date: "2026년 2월 7일", url: "https://studies.aljazeera.net/en" },
+      { title: "이란 SCFR과 공동 컨퍼런스", date: "2025년 5월", url: "https://studies.aljazeera.net/en" },
+      { title: "HBKU와 공동 서구 서사 해체 컨퍼런스", date: "2025년", url: "https://studies.aljazeera.net/en" }
+    ],
+    detail: "MENA 지역 339개 연구센터 중 6위로 평가(2013). 알자지라 미디어 그룹의 학술 부문으로, 아랍 세계와 주변 지역의 시사 현안에 대한 심층 분석 수행. 팔레스타인 이슈에 대해 적극적 입장."
+  },
+  {
+    id: 10,
+    name: "데라삿 (바레인 전략·국제·에너지연구센터)",
+    nameEn: "Bahrain Center for Strategic, International and Energy Studies (Derasat)",
+    country: "BH", countryName: "바레인",
+    city: "마나마",
+    founded: 2009,
+    focus: ["전략 안보", "국제관계", "에너지", "위기관리", "군사학"],
+    category: ["geo", "energy"],
+    orientation: "<strong>바레인 국왕 직속</strong> 설립. 걸프 지역 안보·에너지·국제 이슈에 대한 전향적 연구 수행. 아틀란틱 카운슬과 MOU 체결 등 서방 싱크탱크와 협력 활발. 친서방·친 GCC 성향.",
+    website: "https://www.derasat.org.bh/",
+    recentReports: [
+      { title: "제7회 데라삿 포럼: 아랍 연구센터 컨소시엄 출범", date: "2025년 12월", url: "https://www.derasat.org.bh/" },
+      { title: "아틀란틱 카운슬 공동 세미나: GCC 재정 건전성과 이란 전쟁 시기 거시경제 안정성", date: "2026년", url: "https://www.derasat.org.bh/en/derasat-participates-in-a-seminar-organized-by-the-atlantic-council-on-the-gcc-fiscal-resilienceand-macroeconomic-stability-in-gcc-countries-during-the-iran-war/" }
+    ],
+    detail: "2009년 하마드 빈 이사 알 칼리파 국왕이 설립. 전략안보·군사·국제관계·위기관리·에너지 분야에 걸친 연구 수행. 2025년 12월 아랍 싱크탱크 네트워크(Arab Think Tanks Network) 공식 출범을 주도."
+  },
+  {
+    id: 11,
+    name: "이스라엘 국가안보연구소",
+    nameEn: "Institute for National Security Studies (INSS)",
+    country: "IL", countryName: "이스라엘",
+    city: "텔아비브",
+    founded: 2006,
+    focus: ["국가안보", "군사전략", "이란", "팔레스타인", "중동 외교"],
+    category: ["geo"],
+    orientation: "텔아비브대학 소속 <strong>독립 학술 연구소</strong>. 이스라엘 안보 정책에 대한 정책 지향 연구 수행. 이란 핵, 아랍-이스라엘 관계 등에 대해 이스라엘 관점의 분석 제공. 중도·실용주의 성향.",
+    website: "https://www.inss.org.il",
+    recentReports: [
+      { title: "사우디의 이스라엘 접근법과 정상화 프로세스 변화 (Insight No. 2103)", date: "2026년 2월 23일", url: "https://www.inss.org.il/publication/saudi-israel-2026/" },
+      { title: "Adkan 저널 Vol. 28, No. 3", date: "2025년 11월", url: "https://www.inss.org.il/wp-content/uploads/2026/01/Adkan28.3ENG_3.pdf" }
+    ],
+    detail: "텔아비브대 부설 연구소로 2006년 재편. 이스라엘 국가안보에 관한 핵심 이슈를 연구하며, 정부 및 군 관계자들에게 정책 자문 제공. 매년 '이스라엘 전략평가' 보고서 발간."
+  },
+  {
+    id: 12,
+    name: "브루킹스 도하 센터",
+    nameEn: "Brookings Doha Center",
+    country: "QA", countryName: "카타르",
+    city: "도하",
+    founded: 2008,
+    focus: ["중동 정책", "민주주의", "경제발전", "안보"],
+    category: ["geo"],
+    orientation: "미국 <strong>브루킹스 연구소</strong> 도하 분소. 비교적 독립적·중도자유주의 성향. MENA 지역의 안보, 경제, 거버넌스 이슈에 대한 글로벌 관점의 분석 제공.",
+    website: "https://www.brookings.edu/centers/center-for-middle-east-policy/",
+    recentReports: [
+      { title: "이스라엘 안보·경제·외교 분석 시리즈", date: "2025-2026", url: "https://www.brookings.edu/regions/middle-east-north-africa/israel/" }
+    ],
+    detail: "미국 브루킹스 연구소의 카타르 분소로 2008년 설립. 중동 및 북아프리카 지역의 정치·경제·안보 이슈에 대한 정책 연구 수행. MENA 339개 연구센터 중 8위 평가."
+  },
+  {
+    id: 13,
+    name: "걸프연구센터",
+    nameEn: "Gulf Research Center (GRC)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "제다/제네바/캠브리지",
+    founded: 2000,
+    focus: ["걸프 정치", "경제", "안보", "이민", "에너지"],
+    category: ["geo", "energy"],
+    orientation: "<strong>독립 연구기관</strong>. 사우디 기반이나 제네바·캠브리지에도 사무소 운영. 걸프 지역 전반의 정치·경제·안보 이슈를 다루며, 비교적 학술적·객관적 접근. 아랍 싱크탱크 네트워크 구축에 참여.",
+    website: "#",
+    recentReports: [
+      { title: "아랍 싱크탱크·연구센터 네트워크 공동 출범 (데라삿·알렉산드리아 도서관 협력)", date: "2025년 12월", url: "#" }
+    ],
+    detail: "2000년 설립. 사우디·제네바·캠브리지 3개 거점 운영. 걸프 지역의 정치경제·안보·사회 이슈에 대한 독립적 연구 수행. GCC 국가들의 정책 결정 지원."
+  },
+  {
+    id: 14,
+    name: "이슬람 군사대테러연합",
+    nameEn: "Islamic Military Counter Terrorism Coalition (IMCTC)",
+    country: "SA", countryName: "사우디아라비아",
+    city: "리야드",
+    founded: 2015,
+    focus: ["대테러", "군사협력", "이데올로기 대응", "정보 공유"],
+    category: ["geo"],
+    orientation: "사우디 주도의 <strong>41개국 이슬람 군사연합</strong>. 싱크탱크보다는 군사협력체이나 대테러 관련 연구·분석·정보공유 기능 수행. 테러리즘 이데올로기 대응 연구도 병행.",
+    website: "#",
+    recentReports: [
+      { title: "대테러 이데올로기 대응 및 정보 공유 프로그램", date: "상시", url: "#" }
+    ],
+    detail: "2015년 사우디 주도로 설립된 41개 이슬람 국가 군사연합. 군사 작전 조율, 대테러 이데올로기 대응, 정보 공유, 역량 강화 등을 수행. 리야드에 본부."
+  }
+];
+
+const countryColors = { SA: '#4ade80', AE: '#fb7185', QA: '#f0abfc', BH: '#fca5a5', IL: '#93c5fd', multi: '#a5b4fc' };
+const countryClasses = { SA: 'country-sa', AE: 'country-ae', QA: 'country-qa', BH: 'country-bh', IL: 'country-il', multi: 'country-multi' };
+
+let currentFilter = 'all';
+let searchQuery = '';
+
+function getCountryStats() {
+  const stats = {};
+  thinktanks.forEach(t => {
+    stats[t.country] = stats[t.country] || { name: t.countryName, count: 0 };
+    stats[t.country].count++;
+  });
+  return stats;
+}
+
+function renderCountryPills() {
+  const stats = getCountryStats();
+  const container = document.getElementById('countryPills');
+  container.innerHTML = Object.entries(stats).map(([code, s]) => `
+    <div class="country-pill" onclick="setFilter('${code}')">
+      <div class="dot" style="background:${countryColors[code]}"></div>
+      <span class="name">${s.name}</span>
+      <span class="count">${s.count}개 기관</span>
+    </div>
+  `).join('');
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  const filtered = thinktanks.filter(t => {
+    if (currentFilter !== 'all' && currentFilter !== 'geo' && currentFilter !== 'energy') {
+      if (t.country !== currentFilter) return false;
+    }
+    if (currentFilter === 'geo' && !t.category.includes('geo')) return false;
+    if (currentFilter === 'energy' && !t.category.includes('energy')) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return t.name.toLowerCase().includes(q) || t.nameEn.toLowerCase().includes(q) || t.countryName.includes(q);
+    }
+    return true;
+  });
+
+  document.getElementById('totalCount').textContent = filtered.length;
+
+  grid.innerHTML = filtered.map(t => `
+    <div class="card" onclick="openDetail(${t.id})">
+      <div class="card-header">
+        <div>
+          <h3>${t.name}</h3>
+          <div class="eng">${t.nameEn}</div>
+        </div>
+        <span class="country-badge ${countryClasses[t.country]}">${t.countryName}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          ${t.focus.slice(0,4).map(f => `<span class="tag focus">${f}</span>`).join('')}
+          <span class="tag">${t.city}</span>
+          <span class="tag">${t.founded}년 설립</span>
+        </div>
+        <div class="orientation">${t.orientation}</div>
+      </div>
+      <div class="card-footer">
+        <div class="footer-title">최근 보고서 / 활동</div>
+        ${t.recentReports.slice(0,2).map(r => `
+          <div class="report-item">
+            ${r.title} <span class="report-date">(${r.date})</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function openDetail(id) {
+  const t = thinktanks.find(x => x.id === id);
+  if (!t) return;
+  const content = document.getElementById('detailContent');
+  content.innerHTML = `
+    <h2>${t.name}</h2>
+    <div class="eng-name">${t.nameEn}</div>
+    <span class="country-badge ${countryClasses[t.country]}" style="display:inline-block;margin-bottom:16px;">${t.countryName} · ${t.city}</span>
+
+    <div class="detail-section">
+      <h4>기관 개요</h4>
+      <p>${t.detail}</p>
+    </div>
+
+    <div class="detail-section">
+      <h4>성향 분석</h4>
+      <p>${t.orientation}</p>
+    </div>
+
+    <div class="detail-section">
+      <h4>주요 연구 분야</h4>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${t.focus.map(f => `<span class="tag focus">${f}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h4>설립 정보</h4>
+      <p>설립연도: ${t.founded}년 | 소재지: ${t.city}, ${t.countryName}</p>
+    </div>
+
+    <div class="detail-section">
+      <h4>최근 보고서 / 활동 (6개월)</h4>
+      <ul>
+        ${t.recentReports.map(r => `
+          <li>${r.url !== '#' ? `<a href="${r.url}" target="_blank">${r.title}</a>` : r.title} <span class="report-date">(${r.date})</span></li>
+        `).join('')}
+      </ul>
+    </div>
+
+    ${t.website !== '#' ? `<a class="detail-link" href="${t.website}" target="_blank">공식 웹사이트 방문</a>` : ''}
+  `;
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === f);
+  });
+  renderCards();
+}
+
+document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('overlay').addEventListener('click', closeDetail);
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => setFilter(btn.dataset.filter));
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderCards();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDetail();
+});
+
+// === Timeline Report Data & Rendering ===
+const allReports = [
+  // ME Council - April 2026
+  { title: "In Lebanon, a New Wave of Displacement Exposes a Broken System", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-08", dateLabel: "4월 8일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW"] },
+  { title: "The Bushehr Reactor: Nuclear Facilities on the Line of Fire", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-07", dateLabel: "4월 7일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW","HOT"] },
+  { title: "Battle for the Straits: Reconfiguring the Strategic Geography of Conflict", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-05", dateLabel: "4월 5일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW"] },
+  { title: "Media Coverage of the Iran War in the Era of Artificial Intelligence", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-03-25", dateLabel: "3월 25일", yearLabel: "2026", url: "https://mecouncil.org/", tags: [] },
+  { title: "Doha Global South Health Policy Initiative (with Gates Foundation)", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-02-19", dateLabel: "2월 19일", yearLabel: "2026", url: "https://mecouncil.org/", tags: [] },
+
+  // INSS - 2026
+  { title: "INSS National Security Survey - February 2026 (이란 우려 78%로 상승)", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-03-05", dateLabel: "3월 5일", yearLabel: "2026", url: "https://www.inss.org.il/publication/inss-survey-february-2026/", tags: ["HOT"] },
+  { title: "'The Roaring Lion' - Hezbollah's War for Survival", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-03-15", dateLabel: "3월 15일", yearLabel: "2026", url: "https://www.inss.org.il/publication/hezbollah-roaring-lion/", tags: ["HOT"] },
+  { title: "INSS Insight #2103: 사우디의 이스라엘 접근법 변화와 정상화 프로세스", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-02-23", dateLabel: "2월 23일", yearLabel: "2026", url: "https://www.inss.org.il/publication/saudi-israel-2026/", tags: ["HOT"] },
+  { title: "The State of Israel's National Security 2025-2026", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-01-20", dateLabel: "1월 20일", yearLabel: "2026", url: "https://www.inss.org.il/publication/policy-2025/", tags: [] },
+  { title: "Strategic Assessment Vol. 28 No. 3 - November 2025", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2025-11-15", dateLabel: "11월", yearLabel: "2025", url: "https://www.inss.org.il/wp-content/uploads/2026/01/Adkan28.3ENG_3.pdf", tags: [] },
+  { title: "National Security Survey - January 2026 (이란 우려 74%)", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-02-01", dateLabel: "2월", yearLabel: "2026", url: "https://www.inss.org.il/", tags: [] },
+  { title: "National Security Survey - December 2025", org: "INSS", orgId: 11, country: "IL", cat: ["geo"], date: "2026-01-05", dateLabel: "1월", yearLabel: "2026", url: "https://www.inss.org.il/", tags: [] },
+
+  // AJCS
+  { title: "제17회 알자지라 포럼: 가자 분쟁과 글로벌 질서", org: "AJCS", orgId: 9, country: "QA", cat: ["geo"], date: "2026-02-07", dateLabel: "2월 7일", yearLabel: "2026", url: "https://studies.aljazeera.net/en", tags: [] },
+  { title: "이란 SCFR과 공동 컨퍼런스 개최", org: "AJCS", orgId: 9, country: "QA", cat: ["geo"], date: "2025-11-01", dateLabel: "11월", yearLabel: "2025", url: "https://studies.aljazeera.net/en", tags: [] },
+  { title: "HBKU와 공동 서구 서사 해체 컨퍼런스", org: "AJCS", orgId: 9, country: "QA", cat: ["geo"], date: "2025-10-20", dateLabel: "10월", yearLabel: "2025", url: "https://studies.aljazeera.net/en", tags: [] },
+
+  // Rasanah
+  { title: "2025 연간전략보고서: Alliances of Necessity and Peace Through Strength (284p)", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-01-15", dateLabel: "1월 15일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/news/new-release-rasanahs-2025-annual-strategic-report/", tags: ["HOT"] },
+  { title: "Iran Case File - 2026년 3월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-04-01", dateLabel: "4월 1일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: ["NEW"] },
+  { title: "Iran Case File - 2026년 2월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-03-01", dateLabel: "3월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
+  { title: "Iran Case File - 2026년 1월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-02-01", dateLabel: "2월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
+  { title: "Iran Case File - 2025년 12월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-01-05", dateLabel: "1월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
+  { title: "이란-사우디 갈등 2011 이후 제2판 발간", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2025-11-01", dateLabel: "11월", yearLabel: "2025", url: "https://rasanah-iiis.org/english/news/rasanah-issues-second-edition-of-the-iran-saudi-arabia-conflict-post-2011/", tags: [] },
+
+  // Derasat
+  { title: "아틀란틱 카운슬 공동세미나: GCC 재정건전성과 이란전쟁 시 거시경제 안정", org: "Derasat", orgId: 10, country: "BH", cat: ["geo","energy"], date: "2026-03-01", dateLabel: "3월", yearLabel: "2026", url: "https://www.derasat.org.bh/en/derasat-participates-in-a-seminar-organized-by-the-atlantic-council-on-the-gcc-fiscal-resilienceand-macroeconomic-stability-in-gcc-countries-during-the-iran-war/", tags: [] },
+  { title: "제7회 데라삿 포럼: 아랍 연구센터 컨소시엄 및 네트워크 출범", org: "Derasat", orgId: 10, country: "BH", cat: ["geo"], date: "2025-12-22", dateLabel: "12월", yearLabel: "2025", url: "https://www.derasat.org.bh/", tags: [] },
+  { title: "걸프 안보 정세 분기 분석", org: "Derasat", orgId: 10, country: "BH", cat: ["geo"], date: "2025-11-15", dateLabel: "11월", yearLabel: "2025", url: "https://www.derasat.org.bh/", tags: [] },
+
+  // KAPSARC
+  { title: "GCC 국가 간 전력 교역 잠재력 분석 (연 10억$ 절감)", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-12-01", dateLabel: "12월", yearLabel: "2025", url: "https://www.kapsarc.org/our-offerings/publications/charged-possibilities-exploring-the-potential-of-regional-electricity-trade/", tags: [] },
+  { title: "직접공기포집(DAC) 비용 분석: 톤당 $285~$826", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-11-10", dateLabel: "11월", yearLabel: "2025", url: "https://www.kapsarc.org/our-offerings/publications/", tags: [] },
+  { title: "사우디 석유화학 탄소순환경제 CO2 활용 잠재력", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-10-15", dateLabel: "10월", yearLabel: "2025", url: "https://www.kapsarc.org/our-offerings/publications/circular-carbon-economy-in-the-petrochemical-sector-in-saudi-arabia-a-review-of-co2-utilization-potential-pathways/", tags: [] },
+  { title: "사우디 건물 에너지 효율성의 경제학", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2026-01-12", dateLabel: "1월", yearLabel: "2026", url: "https://www.kapsarc.org/our-offerings/publications/", tags: [] },
+  { title: "Modeling and Projecting Regional Electricity Demand for Saudi Arabia", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2026-02-04", dateLabel: "2월", yearLabel: "2026", url: "https://www.kapsarc.org/our-offerings/publications/modeling-and-projecting-regional-electricity-demand-for-saudi-arabia", tags: [] },
+  { title: "Saudi Arabia Energy Report 2025", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-11-25", dateLabel: "11월", yearLabel: "2025", url: "https://www.kapsarc.org/our-offerings/publications/saudi-arabia-energy-report", tags: [] },
+  { title: "사우디 GDP 재산정 영향 분석 (비석유 비중 53.2%)", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2025-12-10", dateLabel: "12월", yearLabel: "2025", url: "https://www.kapsarc.org/", tags: [] },
+
+  // ECSSR
+  { title: "UAE 국가안보 관련 지역·국제 동향 분석 시리즈", org: "ECSSR", orgId: 6, country: "AE", cat: ["geo"], date: "2025-12-15", dateLabel: "12월", yearLabel: "2025", url: "https://www.ecssr.ae/en/", tags: [] },
+  { title: "걸프 지역 안보·경제·사회 이슈 정기 분석", org: "ECSSR", orgId: 6, country: "AE", cat: ["geo"], date: "2026-02-10", dateLabel: "2월", yearLabel: "2026", url: "https://www.ecssr.ae/en/", tags: [] },
+
+  // KFCRIS
+  { title: "Dirasat 73: Sinology as an Islamic Science", org: "KFCRIS", orgId: 1, country: "SA", cat: ["culture"], date: "2025-01-01", dateLabel: "1월", yearLabel: "2025", url: "https://kfcris.com/en/view/22", tags: [] },
+
+  // GRC
+  { title: "아랍 싱크탱크·연구센터 네트워크 공동 출범", org: "GRC", orgId: 13, country: "SA", cat: ["geo"], date: "2025-12-22", dateLabel: "12월", yearLabel: "2025", url: "https://www.grc.net/", tags: [] },
+  { title: "GCC 국가 정책 동향 분기 분석", org: "GRC", orgId: 13, country: "SA", cat: ["geo","energy"], date: "2026-01-30", dateLabel: "1월", yearLabel: "2026", url: "https://www.grc.net/", tags: [] },
+
+  // AGDA
+  { title: "2025-2026학년 PGD/MAGAD/MAHAD/MILAD 코호트 개시", org: "AGDA", orgId: 7, country: "AE", cat: ["geo"], date: "2025-09-06", dateLabel: "9월", yearLabel: "2025", url: "https://www.agda.ac.ae/", tags: [] },
+  { title: "UAE-인도 싱크탱크 교류 방문 (SASS)", org: "AGDA", orgId: 7, country: "AE", cat: ["geo"], date: "2025-06-26", dateLabel: "6월", yearLabel: "2025", url: "https://english.sass.org.cn/2025/0626/c5489a578785/page.htm", tags: [] },
+].sort((a, b) => b.date.localeCompare(a.date));
+
+// === X (Twitter) Account Data ===
+const xAccounts = [
+  { orgId: 2, name: "KAPSARC", handle: "@KAPSARC", url: "https://twitter.com/KAPSARC", country: "SA",
+    description: "사우디 에너지 정책 연구센터의 공식 X. 에너지 전환, 석유시장, 탄소중립 관련 최신 분석 공유.",
+    samplePosts: ["⚡ 새 보고서: GCC 전력 교역으로 연간 10억 달러 이상 절감 가능", "🌍 KAPSARC 글로벌 에너지 콘퍼런스 라이브 업데이트 진행 중", "📊 사우디 비석유 부문 GDP 53.2%로 재산정 - 이코노미 다각화 가속"] },
+  { orgId: 1, name: "KFCRIS", handle: "@kfcris_en", url: "https://twitter.com/kfcris_en", country: "SA",
+    description: "킹 파이살 연구·이슬람학 센터 영문 계정. 학술 컨퍼런스, 이슬람 문명 연구, 신간 도서 안내.",
+    samplePosts: ["📖 신간 Dirasat 73: 이슬람 과학으로서의 중국학 출간", "🎓 KFCRIS 국제학술대회 연사 발표", "🕌 이슬람 문명·문화에 관한 새로운 연구 시리즈 공개"] },
+  { orgId: 3, name: "Rasanah Institute", handle: "@rasanahiiis", url: "https://twitter.com/rasanahiiis", country: "SA",
+    description: "이란 전문 연구소. 이란 내정·외교·군사 동향에 대한 분석을 아랍어/영어/페르시아어로 발신.",
+    samplePosts: ["🇮🇷 Iran Case File 4월호 출간 - 이란 내부 정세 종합 분석", "📕 2025 연간전략보고서 'Alliances of Necessity' 공개", "⚠️ 이란-사우디 관계 변화에 대한 신규 분석 발표"] },
+  { orgId: 6, name: "The ECSSR", handle: "@TheECSSR", url: "https://twitter.com/TheECSSR", country: "AE",
+    description: "아부다비 에미리츠 전략연구센터. UAE 국가안보·외교·경제 분야 연구 발신.",
+    samplePosts: ["📡 ECSSR 국제 콘퍼런스 2026 개막", "🛡️ UAE 국가안보 관련 신규 분석 보고서 발간", "🌐 걸프 지역 외교·전략 동향 주간 브리핑"] },
+  { orgId: 7, name: "AGDA", handle: "@AGDAUAE", url: "https://twitter.com/AGDAUAE", country: "AE",
+    description: "안와르 가르가시 외교 아카데미. 외교관 교육·UAE 외교정책 연구 활동 공유.",
+    samplePosts: ["🎓 2025-2026학년 신입 외교관 양성 코호트 입학식", "🌍 UAE-인도 싱크탱크 교류 프로그램 진행", "📚 외교 리더십 마스터 프로그램 신입생 모집"] },
+  { orgId: 8, name: "ME Council", handle: "@ME_Council", url: "https://twitter.com/ME_Council", country: "QA",
+    description: "도하 기반 독립 정책연구기관. MENA 지역 지정학 상황평가 시리즈를 가장 활발히 발신.",
+    samplePosts: ["📰 신규 Situation Assessment: 부셰르 원자로 이슈 분석", "🌊 해협 전쟁: 갈등의 전략 지리학 재구성", "🇱🇧 레바논 신규 난민 100만 명 - 시스템 붕괴 분석"] },
+  { orgId: 10, name: "Derasat Bahrain", handle: "@DerasatBH", url: "https://twitter.com/DerasatBH", country: "BH",
+    description: "바레인 전략·국제·에너지연구센터. 걸프 안보, 에너지, 거시경제 이슈 발신.",
+    samplePosts: ["🤝 아틀란틱 카운슬 공동 세미나 라이브 업데이트", "📊 GCC 재정 건전성 분석 신규 보고서", "🌐 아랍 싱크탱크 네트워크 공식 출범"] },
+  { orgId: 11, name: "INSS", handle: "@INSSIsrael", url: "https://twitter.com/INSSIsrael", country: "IL",
+    description: "이스라엘 국가안보연구소. 이란·헤즈볼라·가자·사우디-이스라엘 정상화 등 안보 이슈 분석.",
+    samplePosts: ["📊 INSS 2월 국가안보설문: 이란 우려 78%로 상승", "🦁 'The Roaring Lion' - 헤즈볼라 생존 전쟁 분석", "🇸🇦 사우디의 이스라엘 접근법 변화 분석 (Insight #2103)"] },
+  { orgId: 13, name: "Gulf Research Center", handle: "@Gulf_Research", url: "https://twitter.com/Gulf_Research", country: "SA",
+    description: "걸프연구센터(GRC). 사우디·제네바·캠브리지 거점. GCC 정치·경제·안보 독립 연구 발신.",
+    samplePosts: ["🌐 아랍 싱크탱크·연구센터 네트워크 출범 공식 발표", "📚 걸프 정책 동향 분기 분석 출간", "🤝 EuroMeSCo 파트너십 강화 공동 컨퍼런스 개최"] },
+  { orgId: 9, name: "AJCS", handle: "@ajstudies", url: "https://www.facebook.com/ajstudies/", country: "QA",
+    description: "알자지라 연구센터. 주로 페이스북·인스타그램에서 활발히 활동. 영문 X 계정은 비활성.",
+    samplePosts: ["🎤 제17회 알자지라 포럼 - 가자와 글로벌 질서 (도하 개최)", "🇮🇷 이란 전략외교위원회와 공동 컨퍼런스", "📚 서구 서사 해체 학술 컨퍼런스 (HBKU 공동주최)"] },
+];
+
+let tlFilter = 'all';
+
+function renderTimeline() {
+  const list = document.getElementById('timelineList');
+  const filtered = allReports.filter(r => {
+    if (tlFilter === 'all') return true;
+    if (tlFilter === 'geo' || tlFilter === 'energy') return r.cat.includes(tlFilter);
+    return r.country === tlFilter;
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="tl-empty">해당 필터에 맞는 보고서가 없습니다.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(r => `
+    <div class="tl-item" onclick="${r.url !== '#' ? `window.open('${r.url}','_blank')` : ''}">
+      <div class="tl-date-col">
+        <div class="tl-month">${r.dateLabel}</div>
+        <div class="tl-year">${r.yearLabel}</div>
+      </div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <div class="tl-title">${r.url !== '#' ? `<a href="${r.url}" target="_blank">${r.title}</a>` : r.title}</div>
+        <div class="tl-meta">
+          <span class="tl-country-dot" style="background:${countryColors[r.country]}"></span>
+          <span class="tl-org">${r.org}</span>
+          ${r.tags.map(t => t === 'HOT' ? '<span class="tl-tag hot">HOT</span>' : t === 'NEW' ? '<span class="tl-tag new">NEW</span>' : `<span class="tl-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.tl-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    tlFilter = btn.dataset.tl;
+    document.querySelectorAll('.tl-filter').forEach(b => b.classList.toggle('active', b.dataset.tl === tlFilter));
+    renderTimeline();
+  });
+});
+
+// === Reports Archive Section ===
+let arSearch = '';
+let arSort = 'newest';
+let arOrgFilter = 'all';
+
+function renderArchiveStats() {
+  const totalReports = allReports.length;
+  const last30Days = allReports.filter(r => {
+    const d = new Date(r.date);
+    const cutoff = new Date('2026-03-09');
+    return d >= cutoff;
+  }).length;
+  const orgs = new Set(allReports.map(r => r.org)).size;
+  const geoReports = allReports.filter(r => r.cat.includes('geo')).length;
+  const energyReports = allReports.filter(r => r.cat.includes('energy')).length;
+
+  document.getElementById('archiveStats').innerHTML = `
+    <div class="ar-stat"><div class="num">${totalReports}</div><div class="label">총 보고서</div></div>
+    <div class="ar-stat"><div class="num">${last30Days}</div><div class="label">최근 30일</div></div>
+    <div class="ar-stat"><div class="num">${orgs}</div><div class="label">발간 기관</div></div>
+    <div class="ar-stat"><div class="num">${geoReports}</div><div class="label">외교·안보</div></div>
+    <div class="ar-stat"><div class="num">${energyReports}</div><div class="label">에너지</div></div>
+  `;
+}
+
+function populateArOrgFilter() {
+  const orgs = [...new Set(allReports.map(r => r.org))].sort();
+  const select = document.getElementById('arOrgFilter');
+  orgs.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o;
+    opt.textContent = o;
+    select.appendChild(opt);
+  });
+}
+
+function renderArchive() {
+  const grid = document.getElementById('archiveGrid');
+  let filtered = allReports.filter(r => {
+    if (arOrgFilter !== 'all' && r.org !== arOrgFilter) return false;
+    if (arSearch) {
+      const q = arSearch.toLowerCase();
+      return r.title.toLowerCase().includes(q) || r.org.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  if (arSort === 'newest') filtered = filtered.sort((a,b) => b.date.localeCompare(a.date));
+  else if (arSort === 'oldest') filtered = filtered.sort((a,b) => a.date.localeCompare(b.date));
+  else if (arSort === 'org') filtered = filtered.sort((a,b) => a.org.localeCompare(b.org) || b.date.localeCompare(a.date));
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="tl-empty" style="grid-column:1/-1;">검색 결과가 없습니다.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(r => `
+    <div class="ar-card" onclick="${r.url !== '#' ? `window.open('${r.url}','_blank')` : ''}">
+      <div class="ar-card-top">
+        <div class="ar-card-title">${r.url !== '#' ? `<a href="${r.url}" target="_blank" onclick="event.stopPropagation()">${r.title}</a>` : r.title}</div>
+        <div class="ar-card-date">${r.dateLabel} ${r.yearLabel.slice(2)}</div>
+      </div>
+      <div class="ar-card-meta">
+        <span class="tl-country-dot" style="background:${countryColors[r.country]}"></span>
+        <span class="ar-card-org">${r.org}</span>
+        ${r.cat.map(c => `<span class="tl-tag">${c === 'geo' ? '외교·안보' : c === 'energy' ? '에너지' : c === 'culture' ? '문화' : c}</span>`).join('')}
+        ${r.tags.map(t => t === 'HOT' ? '<span class="tl-tag hot">HOT</span>' : t === 'NEW' ? '<span class="tl-tag new">NEW</span>' : '').join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('arSearch').addEventListener('input', e => { arSearch = e.target.value; renderArchive(); });
+document.getElementById('arSort').addEventListener('change', e => { arSort = e.target.value; renderArchive(); });
+document.getElementById('arOrgFilter').addEventListener('change', e => { arOrgFilter = e.target.value; renderArchive(); });
+
+// === X Feed Section ===
+function renderXGrid() {
+  const grid = document.getElementById('xGrid');
+  grid.innerHTML = xAccounts.map(x => {
+    const initials = x.name.substring(0, 2).toUpperCase();
+    return `
+      <div class="x-card">
+        <div class="x-card-header">
+          <div class="x-avatar" style="background:linear-gradient(135deg, ${countryColors[x.country]}, #1da1f2);">${initials}</div>
+          <div class="x-info">
+            <div class="x-name">${x.name}</div>
+            <div class="x-handle">${x.handle}</div>
+          </div>
+        </div>
+        <div class="x-card-body">
+          <div style="font-size:11px;color:var(--text-dim);line-height:1.5;margin-bottom:8px;">${x.description}</div>
+          ${x.samplePosts.map((p, i) => `
+            <div class="x-post">
+              ${p}
+              <div class="x-post-date">최근 게시 · 클릭하여 X에서 보기</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="x-card-footer">
+          <a href="${x.url}" target="_blank" class="x-link">
+            <svg class="x-icon" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X에서 보기
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+renderCountryPills();
+renderCards();
+renderTimeline();
+populateArOrgFilter();
+renderArchiveStats();
+renderArchive();
+renderXGrid();
+</script>
+</body>
+</html>
