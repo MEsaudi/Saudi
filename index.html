@@ -1383,10 +1383,20 @@ document.addEventListener('keydown', e => {
 
 // === Timeline Report Data & Rendering ===
 const allReports = [
+  // === Weekly Auto-Update: 2026-04-13 ===
+  { title: "What Net-Zero Indices Tell Us About the State of Energy Transitions", org: "KAPSARC", orgId: 2, country: "SA", cat: ["energy"], date: "2026-04-12", dateLabel: "4월 12일", yearLabel: "2026", url: "https://www.kapsarc.org/our-offerings/publications/what-net-zero-indices-tell-us-about-the-state-of-energy-transitions/", tags: ["NEW"] },
+  { title: "The US-Israel War on Iran: Trajectories and Future Prospects (포지션 평가)", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-04-10", dateLabel: "4월 10일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/position-estimate/the-us-israel-war-on-iran-trajectories-and-future-prospects/", tags: ["NEW","HOT"] },
+  { title: "Gains and Losses: Assessing the Trajectories of the War on Iran", org: "AJCS", orgId: 9, country: "QA", cat: ["geo"], date: "2026-04-09", dateLabel: "4월 9일", yearLabel: "2026", url: "https://studies.aljazeera.net/en/policy-briefs/gains-and-losses-assessing-trajectories-war-iran", tags: ["NEW","HOT"] },
+  { title: "Desert Bytes: Why Gulf AI Ambitions Must Align with Energy and Water Realities", org: "ME Council", orgId: 8, country: "QA", cat: ["energy"], date: "2026-04-09", dateLabel: "4월 9일", yearLabel: "2026", url: "https://mecouncil.org/publication/gulf-ai-data-centers-water-energy/", tags: ["NEW"] },
+  { title: "US-European Disagreements Over the War in Iran and NATO's Future", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-04-08", dateLabel: "4월 8일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/monitoring-and-translation/reports/us-european-disagreements-over-the-war-in-iran-and-natos-future/", tags: ["NEW"] },
+  { title: "Iran in a Week: 2026년 4월 2-8일호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-04-08", dateLabel: "4월 8일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/monitoring-and-translation/iran-in-a-week/iran-in-a-week-march-april-2-8-2026/", tags: ["NEW"] },
+  { title: "UAE Education Forum 2026 개최: 에미리트 인적자본과 교육 혁신", org: "ECSSR", orgId: 6, country: "AE", cat: ["culture"], date: "2026-04-07", dateLabel: "4월 7일", yearLabel: "2026", url: "https://www.ecssr.ae/en/news-events/events", tags: ["NEW"] },
+  { title: "IMCTC 회원국 대표 확대 조정회의: 2026 Q2 이니셔티브 진행상황 점검", org: "IMCTC", orgId: 14, country: "SA", cat: ["geo"], date: "2026-04-06", dateLabel: "4월 6일", yearLabel: "2026", url: "https://www.imctc.org/en/MediaCenter/Events/Pages/event05042026.aspx", tags: ["NEW"] },
+  { title: "Al Jazeera English in the US Media Landscape (미국 미디어 지형 내 AJE 위상 분석)", org: "AJCS", orgId: 9, country: "QA", cat: ["culture"], date: "2026-04-06", dateLabel: "4월 6일", yearLabel: "2026", url: "https://studies.aljazeera.net/en/analyses/al-jazeera-english-us-media-landscape", tags: ["NEW"] },
   // ME Council - April 2026
   { title: "In Lebanon, a New Wave of Displacement Exposes a Broken System", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-08", dateLabel: "4월 8일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW"] },
   { title: "The Bushehr Reactor: Nuclear Facilities on the Line of Fire", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-07", dateLabel: "4월 7일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW","HOT"] },
-  { title: "Battle for the Straits: Reconfiguring the Strategic Geography of Conflict", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-05", dateLabel: "4월 5일", yearLabel: "2026", url: "https://mecouncil.org/", tags: ["NEW"] },
+  { title: "Battle for the Straits: Reconfiguring the Strategic Geography of Conflict", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-04-05", dateLabel: "4월 5일", yearLabel: "2026", url: "https://mecouncil.org/", tags: [] },
   { title: "Media Coverage of the Iran War in the Era of Artificial Intelligence", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-03-25", dateLabel: "3월 25일", yearLabel: "2026", url: "https://mecouncil.org/", tags: [] },
   { title: "Doha Global South Health Policy Initiative (with Gates Foundation)", org: "ME Council", orgId: 8, country: "QA", cat: ["geo"], date: "2026-02-19", dateLabel: "2월 19일", yearLabel: "2026", url: "https://mecouncil.org/", tags: [] },
 
@@ -1406,7 +1416,7 @@ const allReports = [
 
   // Rasanah
   { title: "2025 연간전략보고서: Alliances of Necessity and Peace Through Strength (284p)", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-01-15", dateLabel: "1월 15일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/news/new-release-rasanahs-2025-annual-strategic-report/", tags: ["HOT"] },
-  { title: "Iran Case File - 2026년 3월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-04-01", dateLabel: "4월 1일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: ["NEW"] },
+  { title: "Iran Case File - 2026년 3월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-04-01", dateLabel: "4월 1일", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
   { title: "Iran Case File - 2026년 2월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-03-01", dateLabel: "3월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
   { title: "Iran Case File - 2026년 1월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-02-01", dateLabel: "2월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
   { title: "Iran Case File - 2025년 12월호", org: "Rasanah", orgId: 3, country: "SA", cat: ["geo"], date: "2026-01-05", dateLabel: "1월", yearLabel: "2026", url: "https://rasanah-iiis.org/english/category/publications/monthly-reports/", tags: [] },
@@ -1446,22 +1456,22 @@ const allReports = [
 const xAccounts = [
   { orgId: 2, name: "KAPSARC", handle: "@KAPSARC", url: "https://twitter.com/KAPSARC", country: "SA",
     description: "사우디 에너지 정책 연구센터의 공식 X. 에너지 전환, 석유시장, 탄소중립 관련 최신 분석 공유.",
-    samplePosts: ["⚡ 새 보고서: GCC 전력 교역으로 연간 10억 달러 이상 절감 가능", "🌍 KAPSARC 글로벌 에너지 콘퍼런스 라이브 업데이트 진행 중", "📊 사우디 비석유 부문 GDP 53.2%로 재산정 - 이코노미 다각화 가속"] },
+    samplePosts: ["📊 신규 코멘터리: 넷제로 지수가 말해주는 에너지 전환의 현주소", "🌍 KAPSARC 글로벌 에너지 콘퍼런스 라이브 업데이트 진행 중", "📊 사우디 비석유 부문 GDP 53.2%로 재산정 - 이코노미 다각화 가속"] },
   { orgId: 1, name: "KFCRIS", handle: "@kfcris_en", url: "https://twitter.com/kfcris_en", country: "SA",
     description: "킹 파이살 연구·이슬람학 센터 영문 계정. 학술 컨퍼런스, 이슬람 문명 연구, 신간 도서 안내.",
     samplePosts: ["📖 신간 Dirasat 73: 이슬람 과학으로서의 중국학 출간", "🎓 KFCRIS 국제학술대회 연사 발표", "🕌 이슬람 문명·문화에 관한 새로운 연구 시리즈 공개"] },
   { orgId: 3, name: "Rasanah Institute", handle: "@rasanahiiis", url: "https://twitter.com/rasanahiiis", country: "SA",
     description: "이란 전문 연구소. 이란 내정·외교·군사 동향에 대한 분석을 아랍어/영어/페르시아어로 발신.",
-    samplePosts: ["🇮🇷 Iran Case File 4월호 출간 - 이란 내부 정세 종합 분석", "📕 2025 연간전략보고서 'Alliances of Necessity' 공개", "⚠️ 이란-사우디 관계 변화에 대한 신규 분석 발표"] },
+    samplePosts: ["🇮🇷 미-이스라엘 대이란 전쟁: 전개 양상과 미래 전망 (포지션 평가)", "⚠️ 미-유럽 간 이란전쟁·NATO 미래를 둘러싼 이견 분석", "📕 Iran in a Week 4월 2-8일호 발간"] },
   { orgId: 6, name: "The ECSSR", handle: "@TheECSSR", url: "https://twitter.com/TheECSSR", country: "AE",
     description: "아부다비 에미리츠 전략연구센터. UAE 국가안보·외교·경제 분야 연구 발신.",
-    samplePosts: ["📡 ECSSR 국제 콘퍼런스 2026 개막", "🛡️ UAE 국가안보 관련 신규 분석 보고서 발간", "🌐 걸프 지역 외교·전략 동향 주간 브리핑"] },
+    samplePosts: ["🎓 UAE 교육 포럼 2026 개최 - 미래 경제를 위한 인적자본 준비", "🛡️ UAE 국가안보 관련 신규 분석 보고서 발간", "🌐 걸프 지역 외교·전략 동향 주간 브리핑"] },
   { orgId: 7, name: "AGDA", handle: "@AGDAUAE", url: "https://twitter.com/AGDAUAE", country: "AE",
     description: "안와르 가르가시 외교 아카데미. 외교관 교육·UAE 외교정책 연구 활동 공유.",
     samplePosts: ["🎓 2025-2026학년 신입 외교관 양성 코호트 입학식", "🌍 UAE-인도 싱크탱크 교류 프로그램 진행", "📚 외교 리더십 마스터 프로그램 신입생 모집"] },
   { orgId: 8, name: "ME Council", handle: "@ME_Council", url: "https://twitter.com/ME_Council", country: "QA",
     description: "도하 기반 독립 정책연구기관. MENA 지역 지정학 상황평가 시리즈를 가장 활발히 발신.",
-    samplePosts: ["📰 신규 Situation Assessment: 부셰르 원자로 이슈 분석", "🌊 해협 전쟁: 갈등의 전략 지리학 재구성", "🇱🇧 레바논 신규 난민 100만 명 - 시스템 붕괴 분석"] },
+    samplePosts: ["💻 Desert Bytes: 걸프 AI 야망과 에너지·수자원 현실의 조율 필요성", "📰 부셰르 원자로: 화선 위의 핵시설 분석", "🇱🇧 레바논 신규 난민 100만 명 - 시스템 붕괴 분석"] },
   { orgId: 10, name: "Derasat Bahrain", handle: "@DerasatBH", url: "https://twitter.com/DerasatBH", country: "BH",
     description: "바레인 전략·국제·에너지연구센터. 걸프 안보, 에너지, 거시경제 이슈 발신.",
     samplePosts: ["🤝 아틀란틱 카운슬 공동 세미나 라이브 업데이트", "📊 GCC 재정 건전성 분석 신규 보고서", "🌐 아랍 싱크탱크 네트워크 공식 출범"] },
@@ -1473,7 +1483,7 @@ const xAccounts = [
     samplePosts: ["🌐 아랍 싱크탱크·연구센터 네트워크 출범 공식 발표", "📚 걸프 정책 동향 분기 분석 출간", "🤝 EuroMeSCo 파트너십 강화 공동 컨퍼런스 개최"] },
   { orgId: 9, name: "AJCS", handle: "@ajstudies", url: "https://www.facebook.com/ajstudies/", country: "QA",
     description: "알자지라 연구센터. 주로 페이스북·인스타그램에서 활발히 활동. 영문 X 계정은 비활성.",
-    samplePosts: ["🎤 제17회 알자지라 포럼 - 가자와 글로벌 질서 (도하 개최)", "🇮🇷 이란 전략외교위원회와 공동 컨퍼런스", "📚 서구 서사 해체 학술 컨퍼런스 (HBKU 공동주최)"] },
+    samplePosts: ["📰 이란전쟁의 득과 실: 전쟁 궤적 평가 보고서 발간", "📺 미국 미디어 지형 내 AJE 위상 분석 보고서", "🎤 제17회 알자지라 포럼 - 가자와 글로벌 질서 (도하 개최)"] },
 ];
 
 let tlFilter = 'all';
