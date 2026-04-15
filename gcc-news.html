@@ -935,11 +935,11 @@ function card(n){
 function renderContent(){
   const f=getFiltered(),main=document.getElementById('mainContent');
   if(!f.length){main.innerHTML='<div class="no-results">검색 결과 없음</div>';return;}
-  let h=`<div class="summary-panel"><h2>오늘의 핵심 요약 (2026.04.09)</h2><div class="summary-points">
-    <div class="summary-point"><span class="summary-icon">\u{1F6E1}\u{FE0F}</span><div class="summary-text"><strong>이란-미국 2주 휴전 합의:</strong> 파키스탄 중재. 호르무즈 해협 재개방. 그러나 휴전 발표 후에도 걸프 전역 공격 지속 (쿠웨이트 28회, UAE 35회 드론 공격).</div></div>
-    <div class="summary-point"><span class="summary-icon">\u{1F6E2}\u{FE0F}</span><div class="summary-text"><strong>에너지 위기:</strong> 사우디 동서 파이프라인(일 700만 배럴) 드론 피격, 피해 제한적. 유가 사상 최고 프리미엄 $19.50. 지속 시 $180/bbl 전망.</div></div>
-    <div class="summary-point"><span class="summary-icon">\u{1F4B0}</span><div class="summary-text"><strong>경제·투자:</strong> 사우디 GDP 4.3~4.7% 전망. PIF 사모신용 펀드 출범. 걸프 SWF $810억 워너 인수 지원. TASI 2.3% 상승. GCC 신용 '안정적'.</div></div>
-    <div class="summary-point"><span class="summary-icon">\u{1F1F0}\u{1F1F7}</span><div class="summary-text"><strong>한국 영향:</strong> 원/달러 1,500원 돌파. 소비자물가 2.4% 급등. 반도체 수출 151% 역대 최대. 중소기업 피해 422건. 휴전에 증시 급등.</div></div>
+  let h=`<div class="summary-panel"><h2>오늘의 핵심 요약 (2026.04.15)</h2><div class="summary-points">
+    <div class="summary-point"><span class="summary-icon">\u{1F6E1}\u{FE0F}</span><div class="summary-text"><strong>미-이란 전쟁 협상 재개 기류:</strong> 트럼프 "전쟁 거의 끝나간다" 발언. 호르무즈 봉쇄 2일째. 파키스탄, 4월 21일 휴전 만료 전 2차 회담 중재 추진. 밴스 부통령이 2차 협상 이끌 전망.</div></div>
+    <div class="summary-point"><span class="summary-icon">\u{1F6E2}\u{FE0F}</span><div class="summary-text"><strong>에너지 위기 최고조:</strong> IEA "역사상 최대 공급 차질" 선언. 세계 석유공급 3월 1,010만 b/d 급감. 유가 $95~100 수준. 월가·미국 당국 $200 시나리오 검토 시작. 사우디 동서 송유관은 700만 b/d 완전 복구.</div></div>
+    <div class="summary-point"><span class="summary-icon">\u{1F4B0}</span><div class="summary-text"><strong>경제·외교:</strong> IMF 사우디 성장률 4.5%→3.1% 하향, 중동·북아프리카 1.1%로 급락. 파키스탄 총리 사우디 방문·전략 방위협정 이행. 이스라엘-레바논, 수십 년 만에 워싱턴 직접 회담 개최·협상 지속 합의. 사우디 이라크 대사 초치.</div></div>
+    <div class="summary-point"><span class="summary-icon">\u{1F1F0}\u{1F1F7}</span><div class="summary-text"><strong>한국 영향:</strong> KDI 최악 시나리오 GDP 0.8%p 하락·물가 2.9%p 상승 경고. 삼일PwC 반도체·석화 타격 최대 전망. 정부 17개국서 대체원유 1억1800만 배럴 확보 (사우디 34%). 파이낸셜뉴스 "2% 성장 빨간불".</div></div>
   </div></div>`;
 
   h+=`<div class="article-count-note">검색된 기사: <strong>${f.length}건</strong> / 전체 ${D.length}건 (사우디 언론: SPA, Arab News, Saudi Gazette, Argaam, Asharq Al-Awsat 포함)</div>`;
@@ -954,10 +954,4 @@ function renderContent(){
   main.innerHTML=h;
 }
 
-document.getElementById('currentDate').textContent=(function(){const n=new Date(),w=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];return `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 ${w[n.getDay()]}`})();
-document.getElementById('searchInput').addEventListener('input',e=>{searchQuery=e.target.value;renderContent();});
-window.addEventListener('scroll',()=>document.getElementById('scrollTop').classList.toggle('show',window.scrollY>400));
-renderStats();renderControls();renderContent();
-</script>
-</body>
-</html>
+document.getElementById('currentDate').textContent=(function(){const n=new Date(),w=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];return `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.get
