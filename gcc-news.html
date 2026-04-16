@@ -991,4 +991,10 @@ function renderContent(){
   main.innerHTML=h;
 }
 
-document.getElementById('currentDate').textContent=(function(){const n=new Date(),w=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];return `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.get
+document.getElementById('currentDate').textContent=(function(){const n=new Date(),w=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];return `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 ${w[n.getDay()]}`)})();
+document.getElementById('searchInput').addEventListener('input',e=>{searchQuery=e.target.value;renderContent();});
+window.addEventListener('scroll',()=>document.getElementById('scrollTop').classList.toggle('show',window.scrollY>400));
+renderStats();renderControls();renderContent();
+</script>
+</body>
+</html>
